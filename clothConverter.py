@@ -16,7 +16,7 @@ nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
 cmds.separator(height = 10)
-
+cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ')
 
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
@@ -33,8 +33,13 @@ def convertCloth():
     name = inputname
     
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
-    
-    collider = cmds.polyCylinder(r=1, h=2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
+    useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
+    if (useTable == True):
+        table = cmds.ls(selection = True, sn=True)
+        colliderName = table[0]
+    else:
+        collider = cmds.polyCylinder(r=1, h=2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
+        colliderName = name + 'collider'
     
     clothmesh = cmds.polyPlane(w=1, h=1, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     cmds.move(0, 1.877564, 0, r=True, os=True, wd=True)
@@ -42,7 +47,7 @@ def convertCloth():
     clothmesh = cmds.polySmooth(mth=0, sl = 2)
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
-    cmds.connectAttr(name + 'colliderShape.worldMesh[0]', name + 'nRigid1.inputMesh')
+    cmds.connectAttr(colliderName + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
     cmds.createNode('nucleus', name= name + 'nucleus1')
     cmds.connectAttr(name + 'nRigid1.currentState', name + 'nucleus1.inputPassive[0]')
     cmds.connectAttr(name + 'nRigid1.startState', name + 'nucleus1.inputPassiveStart[0]')
