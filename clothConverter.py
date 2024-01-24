@@ -16,8 +16,11 @@ nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
 cmds.separator(height = 10)
+cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray4=['Circular', 'Square', 'Elliptic', 'Rectangular'], numberOfRadioButtons=4)
+cmds.floatSliderGrp('radius', label='Radius ', field = True, min = 1, max = 40, v = 1)
+cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 1)
+cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 1)
 cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ')
-
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
 cmds.button(label="Convert into Cloth", c="convertCloth()", p = submitrow)
@@ -34,20 +37,37 @@ def convertCloth():
     
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
+    clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
+    width = cmds.floatSliderGrp('width', q = True, v = True)
+    height = cmds.floatSliderGrp('height', q = True, v = True)
+    
+    print(clothShape)
+    
     if (useTable == True):
         table = cmds.ls(selection = True, sn=True)
         colliderName = table[0]
+        
+        cmds.duplicate(colliderName, n = name + 'collider')
+        
     else:
         collider = cmds.polyCylinder(r=1, h=2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
-        colliderName = name + 'collider'
+        #colliderName = name + 'collider'
     
-    clothmesh = cmds.polyPlane(w=1, h=1, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    if(clothShape == 1):
+        clothmesh = cmds.polyDisc(sides=3, subdivisionMode=4, subdivisions=3, radius=1, n = name + 'clothmesh')
+    elif (clothShape == 2):
+        clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    elif (clothShape == 3):
+        clothmesh = cmds.polyDisc(sides=3, subdivisionMode=4, subdivisions=3, radius=1, n = name + 'clothmesh')
+    else:
+        clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    
     cmds.move(0, 1.877564, 0, r=True, os=True, wd=True)
-    cmds.scale(5.716102, 5.716102, 5.716102, r=True)
+    #cmds.scale(5.716102, 5.716102, 5.716102, r=True)
     clothmesh = cmds.polySmooth(mth=0, sl = 2)
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
-    cmds.connectAttr(colliderName + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
+    cmds.connectAttr(name + 'collider' + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
     cmds.createNode('nucleus', name= name + 'nucleus1')
     cmds.connectAttr(name + 'nRigid1.currentState', name + 'nucleus1.inputPassive[0]')
     cmds.connectAttr(name + 'nRigid1.startState', name + 'nucleus1.inputPassiveStart[0]')
