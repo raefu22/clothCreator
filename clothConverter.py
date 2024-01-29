@@ -50,11 +50,11 @@ def convertCloth():
         cmds.duplicate(colliderName, n = name + 'collider')
         
     else:
-        collider = cmds.polyCylinder(r=1, h=2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
-        #colliderName = name + 'collider'
+        collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
     
     if(clothShape == 1):
-        clothmesh = cmds.polyDisc(sides=3, subdivisionMode=4, subdivisions=3, radius=1, n = name + 'clothmesh')
+        clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+        clothmesh = cmds.polyCircularize(name + 'clothmesh')
     elif (clothShape == 2):
         clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     elif (clothShape == 3):
@@ -81,8 +81,11 @@ def convertCloth():
     cmds.connectAttr(name + 'nCloth1.currentState', name + 'nucleus1.inputActive[0]')
     outMesh = cmds.createNode('mesh', n = name + 'cloth1')
     cmds.connectAttr(name + 'nCloth1.outputMesh', name + 'cloth1.inMesh')
+    cmds.setAttr(name + 'nRigid1.thickness', 0.0)
+    cmds.setAttr(name + 'nCloth1.thickness', 0.01)
+    
     time_node = cmds.createNode('time', n = 'time')
-    cmds.playbackOptions(minTime=1, maxTime=100, animationStartTime=1, animationEndTime=100)
+    cmds.playbackOptions(minTime=1, maxTime=300, animationStartTime=1, animationEndTime=300)
     cmds.currentTime( query=True )
     
     cmds.connectAttr('time.outTime', name + 'nCloth1.currentTime')
