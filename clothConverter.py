@@ -1,6 +1,10 @@
 import maya.cmds as cmds
 import random
 
+def heightVis(*args):
+    showCheckbox = cmds.radioButtonGrp(shapeSelection, q = True)
+    cmds.floatSliderGrp(heightParam, edit=True, enable=False)
+
 window = cmds.window(title='Cloth Converter', menuBar = True, width=250)
 container = cmds.columnLayout()
 cols = cmds.rowLayout(numberOfColumns=3, p=container)
@@ -16,10 +20,11 @@ nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
 cmds.separator(height = 10)
-cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray4=['Circular', 'Square', 'Elliptic', 'Rectangular'], numberOfRadioButtons=4)
-cmds.floatSliderGrp('radius', label='Radius ', field = True, min = 1, max = 40, v = 1)
-cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 1)
-cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 1)
+shapeSelection = cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray4=['Circular', 'Square', 'Elliptic', 'Rectangular'], numberOfRadioButtons=4, cc = heightVis)
+#cmds.floatSliderGrp('radius', label='Radius ', field = True, min = 1, max = 40, v = 3)
+cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
+heightParam = cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
+cmds.floatSliderGrp(heightParam, edit=True, enable=False)
 cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ')
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
@@ -53,12 +58,14 @@ def convertCloth():
         collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
     
     if(clothShape == 1):
-        clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
         clothmesh = cmds.polyCircularize(name + 'clothmesh')
     elif (clothShape == 2):
-        clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     elif (clothShape == 3):
-        clothmesh = cmds.polyDisc(sides=3, subdivisionMode=4, subdivisions=3, radius=1, n = name + 'clothmesh')
+        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+        clothmesh = cmds.polyCircularize(name + 'clothmesh')
+        #scale clothmesh based on height width ratio
     else:
         clothmesh = cmds.polyPlane(w=width, h=height, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     
