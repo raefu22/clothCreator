@@ -50,22 +50,24 @@ def convertCloth():
         
     else:
         collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
-    
+
     if(clothShape == 1):
         clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
         clothmesh = cmds.polyCircularize(name + 'clothmesh')
         cmds.select(clothmesh)
         ratio = height/width
         clothmesh = cmds.scale(ratio, 1, 1, relative = True)
-    elif (clothShape == 2):
+    else:
         clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     
     cmds.select(clothmesh)
     cmds.move(0, 15, 0, r=True, os=True, wd=True)
     
     #cmds.scale(5.716102, 5.716102, 5.716102, r=True)
-    clothmesh = cmds.polySmooth(mth=0, sl = 2)
-    cmds.select(name + 'collider')
+    
+    
+    clothmesh = cmds.polySmooth(name + 'clothmesh', mth=0, sl = 2)
+    #cmds.select(collider)
     # Error: TypeError: file <maya console> line 67: Error retrieving default arguments # 
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
