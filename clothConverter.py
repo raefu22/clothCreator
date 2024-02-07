@@ -51,17 +51,16 @@ def convertCloth():
     else:
         collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
 
-    if(clothShape == 1):
-        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    if(clothShape == 1):    
         clothmesh = cmds.polyCircularize(name + 'clothmesh')
-        cmds.select(clothmesh)
-        ratio = height/width
-        clothmesh = cmds.scale(ratio, 1, 1, relative = True)
-    else:
-        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+    cmds.select(name + 'clothmesh')
+    ratio = height/width
+    clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     
-    cmds.select(clothmesh)
-    cmds.move(0, 15, 0, r=True, os=True, wd=True)
+    
+    #cmds.select(clothmesh)
+    cmds.move(0, 15, 0, r=True)
     
     #cmds.scale(5.716102, 5.716102, 5.716102, r=True)
     
