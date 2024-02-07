@@ -1,6 +1,14 @@
 import maya.cmds as cmds
 import random
 
+def hideTableOp(*args):
+    showCheckbox = cmds.checkBoxGrp(useTable, q = True)
+    cmds.floatSliderGrp(tableScale, edit=True, enable=False)
+   
+def showTableOp(*args):
+    showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
+    cmds.floatSliderGrp(tableScale, edit=True, enable=True)
+
 window = cmds.window(title='Cloth Converter', menuBar = True, width=250)
 container = cmds.columnLayout()
 cols = cmds.rowLayout(numberOfColumns=3, p=container)
@@ -17,10 +25,10 @@ cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
-
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
 cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
-cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ')
+useTable = cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ', onc = hideTableOp, ofc = showTableOp)
+tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = True, min = 1, max = 40, v = 3)
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
 cmds.button(label="Convert into Cloth", c="convertCloth()", p = submitrow)
@@ -40,6 +48,8 @@ def convertCloth():
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
     height = cmds.floatSliderGrp('height', q = True, v = True)
+    tableScale = cmds.floatSliderGrp('tableScale', q = True, v = True)
+    
     
     print(clothShape)
     
@@ -51,7 +61,8 @@ def convertCloth():
         
     else:
         collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
-
+        cmds.select(name + 'collider')
+        cmds.scale(tableScale, tableScale, tableScale, relative = True)
 
     clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     if(clothShape == 1):    
@@ -69,7 +80,7 @@ def convertCloth():
     
     clothmesh = cmds.polySmooth(name + 'clothmesh', mth=0, sl = 2)
     #cmds.select(collider)
-    # Error: TypeError: file <maya console> line 67: Error retrieving default arguments # 
+
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
     cmds.connectAttr(name + 'collider' + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
