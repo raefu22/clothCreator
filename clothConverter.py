@@ -17,6 +17,7 @@ cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
+
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
 cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
 cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ')
@@ -50,6 +51,7 @@ def convertCloth():
         
     else:
         collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
+
 
     clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     if(clothShape == 1):    
