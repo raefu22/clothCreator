@@ -111,6 +111,10 @@ def convertCloth():
     
     cmds.expression(s=f"{time_node}.outTime = `currentTime -q`;")
    
+    cmds.setAttr(name + 'nCloth1.lift', 0)
+    cmds.setAttr(name + 'nCloth1.friction', 0.5)   
+    cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
+    
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
                 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
