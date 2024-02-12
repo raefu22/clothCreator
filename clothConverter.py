@@ -1,6 +1,17 @@
 import maya.cmds as cmds
 import random
 
+#UI window
+def showTableclothOp(*args):
+    showCheckbox = cmds.checkBoxGrp(isTablecloth, q = True, vis = False, v1 = False)
+    cmds.checkBoxGrp(useTable, edit=True, enable=True)
+    cmds.floatSliderGrp(tableScale, edit=True, enable=True)
+
+def hideTableclothOp(*args):
+    showCheckbox = cmds.checkBoxGrp(isTablecloth, q = True)
+    cmds.checkBoxGrp(useTable, edit=True, enable=False)
+    cmds.floatSliderGrp(tableScale, edit=True, enable=False)
+
 def hideTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True)
     cmds.floatSliderGrp(tableScale, edit=True, enable=False)
@@ -22,13 +33,17 @@ cmds.text('            ')
 cmds.separator(height = 10)
 nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
-isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ')
+isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
 cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
 useTable = cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ', onc = hideTableOp, ofc = showTableOp)
 tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = True, min = 1, max = 40, v = 3)
+cmds.checkBoxGrp(useTable, edit=True, enable=False)
+cmds.floatSliderGrp(tableScale, edit=True, enable=False)
+
+
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
 cmds.button(label="Convert into Cloth", c="convertCloth()", p = submitrow)
@@ -49,8 +64,6 @@ def convertCloth():
     width = cmds.floatSliderGrp('width', q = True, v = True)
     height = cmds.floatSliderGrp('height', q = True, v = True)
     tableScale = cmds.floatSliderGrp('tableScale', q = True, v = True)
-    
-    
     
     
     
