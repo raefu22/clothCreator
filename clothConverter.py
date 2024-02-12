@@ -51,7 +51,8 @@ def convertCloth():
     tableScale = cmds.floatSliderGrp('tableScale', q = True, v = True)
     
     
-    print(clothShape)
+    
+    
     
     if (useTable == True):
         table = cmds.ls(selection = True, sn=True)
@@ -71,16 +72,21 @@ def convertCloth():
     ratio = height/width
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     
+    #location
+    clothLocation = 0, 5, 0
+    if (useTable):
+        clothLocation = cmds.objectCenter(collider)
+        clothLocation[1] += 5
+    cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
-    #cmds.select(clothmesh)
-    cmds.move(0, 15, 0, r=True)
+    #add subdivisions to cloth mesh
+    clothSubdivide = 2
+    if (width > 7 or height >  7):
+        clothSubdivide = 3
+    print(clothSubdivide)
+    clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
     
-    #cmds.scale(5.716102, 5.716102, 5.716102, r=True)
-    
-    
-    clothmesh = cmds.polySmooth(name + 'clothmesh', mth=0, sl = 2)
-    #cmds.select(collider)
-
+    #convert to nCloth
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
     cmds.connectAttr(name + 'collider' + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
@@ -98,7 +104,7 @@ def convertCloth():
     outMesh = cmds.createNode('mesh', n = name + 'cloth1')
     cmds.connectAttr(name + 'nCloth1.outputMesh', name + 'cloth1.inMesh')
     cmds.setAttr(name + 'nRigid1.thickness', 0.0)
-    cmds.setAttr(name + 'nCloth1.thickness', 0.01)
+    cmds.setAttr(name + 'nCloth1.thickness', 0.02)
     
     time_node = cmds.createNode('time', n = 'time')
     cmds.playbackOptions(minTime=1, maxTime=300, animationStartTime=1, animationEndTime=300)
@@ -108,12 +114,13 @@ def convertCloth():
     cmds.connectAttr('time.outTime', name + 'nucleus1.currentTime')
     cmds.connectAttr('time.outTime', name + 'nRigid1.currentTime')
     
-    
     cmds.expression(s=f"{time_node}.outTime = `currentTime -q`;")
    
+    #nCloth attribute adjustments
     cmds.setAttr(name + 'nCloth1.lift', 0)
     cmds.setAttr(name + 'nCloth1.friction', 0.5)   
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
+    cmds.setAttr(name + 'nCloth1.stretchResistance', 120)
     
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
                 
