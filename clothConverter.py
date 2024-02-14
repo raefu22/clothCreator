@@ -1,5 +1,6 @@
 import maya.cmds as cmds
 import random
+import math
 
 #UI window
 def showTableclothOp(*args):
@@ -147,16 +148,30 @@ def convertCloth():
         
         if (useCrease == True):
             curveObj = cmds.ls(selection = True)
+            print(curveObj)
             curveName = curveObj[0]
-            #SAYS THAT ^ INDEX IS OUT OF RANGE
             print(curveName)
             cmds.polyCube(n='creaseMesh')
             curveStart = cmds.getAttr(curveName + '.cv[0]')
-            print(curveStart[0])
-            print(curveStart[1])
-            print(curveStart[2])
-            cmds.move(curveStart[0], curveStart[1], curveStart[2])
-        
+            cmds.move(curveStart[0][0], curveStart[0][1], curveStart[0][2])
+            print(curveStart)
+            cmds.bezierCurveToNurbs(curveName)
+            cmds.rebuildCurve(rt=4)
+            
+            '''
+            #turn to angle
+            curvePt2 = cmds.getAttr(curveName + '.cv[*]')
+            print(curvePt2)
+            rotDeg = math.degrees(math.atan((curveStart[0][2] - curvePt2[0][2])/(curveStart[0][0] - curvePt2[0][0])))
+            cmds.rotate(rotDeg)
+            '''
+            cmds.select('creaseMesh.f[5]')
+            cmds.polyExtrudeFacet('creaseMesh.f[5]', constructionHistory=1, keepFacesTogether=1, pvx=-12.38236632, pvy=0, pvz=-1.647650551, divisions=22, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, inputCurve=curveName)
+            #setAttr "polyExtrudeFace1.divisions" 20.4;
+            #setAttr "polyExtrudeFace1.divisions" 21.8;
+
+            
+            
         clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
         if(clothShape == 1):    
             clothmesh = cmds.polyCircularize(name + 'clothmesh')
