@@ -40,6 +40,9 @@ cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic',
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
 cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
 useCrease = cmds.checkBoxGrp('useCrease', numberOfCheckBoxes=1, label='Use Selected as Crease ')
+
+#change all creases to folds
+
 useTable = cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ', onc = hideTableOp, ofc = showTableOp)
 tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = True, min = 1, max = 40, v = 3)
 cmds.checkBoxGrp(useTable, edit=True, enable=False)
@@ -87,10 +90,10 @@ def convertCloth():
         clothmesh = cmds.scale(ratio, 1, 1, relative = True)
         
         #location
-        clothLocation = 0, 5, 0
+        clothLocation = 0, 2, 0
         if (useTable):
             clothLocation = cmds.objectCenter(collider)
-            clothLocation[1] += 5
+            clothLocation[1] += 2
         cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
         
         #add subdivisions to cloth mesh
@@ -148,29 +151,16 @@ def convertCloth():
         
         if (useCrease == True):
             curveObj = cmds.ls(selection = True)
-            print(curveObj)
             curveName = curveObj[0]
-            print(curveName)
-            cmds.polyCube(n='creaseMesh')
-            curveStart = cmds.getAttr(curveName + '.cv[0]')
-            cmds.move(curveStart[0][0], curveStart[0][1], curveStart[0][2])
-            print(curveStart)
-            cmds.bezierCurveToNurbs(curveName)
-            cmds.rebuildCurve(rt=4)
             
-            '''
-            #turn to angle
-            curvePt2 = cmds.getAttr(curveName + '.cv[*]')
-            print(curvePt2)
-            rotDeg = math.degrees(math.atan((curveStart[0][2] - curvePt2[0][2])/(curveStart[0][0] - curvePt2[0][0])))
-            cmds.rotate(rotDeg)
-            '''
-            cmds.select('creaseMesh.f[5]')
-            cmds.polyExtrudeFacet('creaseMesh.f[5]', constructionHistory=1, keepFacesTogether=1, pvx=-12.38236632, pvy=0, pvz=-1.647650551, divisions=22, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, inputCurve=curveName)
-            #setAttr "polyExtrudeFace1.divisions" 20.4;
-            #setAttr "polyExtrudeFace1.divisions" 21.8;
-
+            sweepNode = cmds.sweepMeshFromCurve(oneNodePerCurve=0)
+            cmds.rename(sweepNode, f'sweepMesh{name}')
             
+            cmds.setAttr(f'sweepMesh{name}.scaleProfileX', 0.197368)
+            connections = cmds.listConnections(f'sweepMesh{name}', source = False)
+            cmds.rename(connections[0], name + 'creaseCollider')
+            cmds.select(name + 'creaseCollider')
+            cmds.polySmooth(mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=2, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             
         clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
         if(clothShape == 1):    
