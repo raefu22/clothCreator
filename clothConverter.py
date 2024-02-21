@@ -35,6 +35,7 @@ cmds.separator(height = 10)
 nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
+isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
@@ -61,7 +62,7 @@ def convertCloth():
     name = inputname
     
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
-    
+    isCurtain = cmds.checkBoxGrp('isCurtain', q = True, v1=True)
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
     length = cmds.floatSliderGrp('length', q = True, v = True)
@@ -82,7 +83,11 @@ def convertCloth():
             collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
             cmds.select(name + 'collider')
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
-      
+    elif (isCurtain):
+        cmds.polyCylinder( r=0.15, h=width, sh=width * 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
+        cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
+        cmds.select(name + 'collider')
+        
     else:
         
         if (useFolds == True):
@@ -116,16 +121,19 @@ def convertCloth():
         
         #plane collider
         collider = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'collider')
-        
+    
+    #cloth shape  
     clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
     if(clothShape == 1):    
         clothmesh = cmds.polyCircularize(name + 'clothmesh')
     cmds.select(name + 'clothmesh')
     ratio = length/width
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
+    if isCurtain:
+        cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
     
-    #location
-    clothLocation = 0, 2, 0
+    #clothLocation = ()
+    clothLocation = [0, 2, 0]
     if (useTable):
         clothLocation = cmds.objectCenter(collider)
         clothLocation[1] += 2
@@ -134,6 +142,13 @@ def convertCloth():
         cmds.select(name + 'collider')
         cmds.move(clothLocation[0], 0, clothLocation[2], r=True)
         clothLocation[1] += 2
+    elif(isCurtain):
+        cmds.select(name + 'collider')
+        moveup = length/2
+        cmds.move(0, moveup, 0, r=True)
+        clothLocation[1] = clothLocation[1]-2
+    #else:
+        #clothLocation = 0, 2, 0
     cmds.select(name + 'clothmesh')
     cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
@@ -190,6 +205,9 @@ def convertCloth():
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
     cmds.setAttr(name + 'nCloth1.stretchResistance', 120)
     
+    #curtain attach constraints
+    
+    #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
                 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
