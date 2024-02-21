@@ -38,7 +38,7 @@ isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is 
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
-cmds.floatSliderGrp('height', label='Height ', field = True, min = 1, max = 40, v = 5)
+cmds.floatSliderGrp('length', label='Length ', field = True, min = 1, max = 40, v = 5)
 useFolds = cmds.checkBoxGrp('useFolds', numberOfCheckBoxes=1, label='Use Selected as Fold(s) ')
 
 useTable = cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ', onc = hideTableOp, ofc = showTableOp)
@@ -64,7 +64,7 @@ def convertCloth():
     
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
-    height = cmds.floatSliderGrp('height', q = True, v = True)
+    length = cmds.floatSliderGrp('length', q = True, v = True)
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
@@ -82,8 +82,7 @@ def convertCloth():
             collider = cmds.polyCylinder(r=0.3, h=0.2, sx=20, sy=1, sz=1, ax=[0, 1, 0], cuv=3, ch=1, n = name + 'collider')
             cmds.select(name + 'collider')
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
-    
-        
+      
     else:
         
         if (useFolds == True):
@@ -101,7 +100,6 @@ def convertCloth():
                 cmds.select(name + f'foldsMesh{curveNumName}')
                 cmds.polySmooth(mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=2, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
                 mergeList.append(name + f'foldsMesh{curveNum + 1}')
-            print(mergeList)
             if len(curveObj)>1:
                 cmds.polyUnite(mergeList, ch=1, mergeUVSets=1, centerPivot=True, name=name + 'foldsCollider')
             else:
@@ -113,7 +111,7 @@ def convertCloth():
         if(clothShape == 1):    
             clothmesh = cmds.polyCircularize(name + 'clothmesh')
         cmds.select(name + 'clothmesh')
-        ratio = height/width
+        ratio = length/width
         clothmesh = cmds.scale(ratio, 1, 1, relative = True)
         
         #plane collider
@@ -123,7 +121,7 @@ def convertCloth():
     if(clothShape == 1):    
         clothmesh = cmds.polyCircularize(name + 'clothmesh')
     cmds.select(name + 'clothmesh')
-    ratio = height/width
+    ratio = length/width
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     
     #location
@@ -141,9 +139,10 @@ def convertCloth():
     
     #add subdivisions to cloth mesh
     clothSubdivide = 2
-    if (width > 7 or height >  7):
+    if (width > 7 or length >  7):
         clothSubdivide = 3
-    print(clothSubdivide)
+    elif (width > 15 or length > 20):
+        clothSubdivide = 4
     clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
     
     #convert to nCloth
@@ -179,9 +178,10 @@ def convertCloth():
     if (useFolds == True):
         cmds.createNode('nRigid', name=name + 'nRigid2')
         cmds.connectAttr(name + 'foldsCollider' + 'Shape.worldMesh[0]', name + 'nRigid2.inputMesh')
-        cmds.connectAttr(name + 'nRigid2.currentState', name + 'nucleus1.inputPassive[0]')
-        cmds.connectAttr(name + 'nRigid2.startState', name + 'nucleus1.inputPassiveStart[0]')
+        cmds.connectAttr(name + 'nRigid2.currentState', name + 'nucleus1.inputPassive[1]')
+        cmds.connectAttr(name + 'nRigid2.startState', name + 'nucleus1.inputPassiveStart[1]')
         cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nRigid2.startFrame')
+        cmds.connectAttr('time.outTime', name + 'nRigid2.currentTime')
         cmds.setAttr(name + 'nRigid2.thickness', 0.0)
    
     #nCloth attribute adjustments
