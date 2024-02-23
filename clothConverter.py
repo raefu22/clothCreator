@@ -1,3 +1,4 @@
+
 import maya.cmds as cmds
 import random
 import math
@@ -132,7 +133,7 @@ def convertCloth():
     if isCurtain:
         cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
     
-    #clothLocation = ()
+    #cloth location
     clothLocation = [0, 2, 0]
     if (useTable):
         clothLocation = cmds.objectCenter(collider)
@@ -147,8 +148,6 @@ def convertCloth():
         moveup = length/2
         cmds.move(0, moveup, 0, r=True)
         clothLocation[1] = clothLocation[1]-2
-    #else:
-        #clothLocation = 0, 2, 0
     cmds.select(name + 'clothmesh')
     cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
@@ -205,7 +204,13 @@ def convertCloth():
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
     cmds.setAttr(name + 'nCloth1.stretchResistance', 120)
     
-    #curtain attach constraints
+    #curtain folds
+    if (isCurtain):
+        cmds.currentTime(10)
+        cmds.select(name + 'collider')
+        cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
+        cmds.currentTime(20)
+        cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
     
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
