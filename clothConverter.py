@@ -1,7 +1,7 @@
-
 import maya.cmds as cmds
 import random
 import math
+import maya.mel as mel
 
 #UI window
 def showTableclothOp(*args):
@@ -85,14 +85,14 @@ def convertCloth():
             cmds.select(name + 'collider')
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
     elif (isCurtain):
-        print(width * 4)
-        cmds.polyCylinder( r=0.15, h=width, sh=width * 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
-        
+        div = width * 4
+        print(div)
+        cmds.polyCylinder( r=0.15, h=width, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
+        cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
         
     else:
-        
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
             mergeList = []
@@ -147,13 +147,14 @@ def convertCloth():
         clothLocation[1] += 2
     elif(isCurtain):
         cmds.select(name + 'collider')
-        moveup = length/2
+        moveup = length/2 + 0.2
         cmds.move(0, moveup, 0, r=True)
         clothLocation[1] = clothLocation[1]-2
     cmds.select(name + 'clothmesh')
     cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
     #add subdivisions to cloth mesh
+    
     clothSubdivide = 2
     if (width > 7 or length >  7):
         clothSubdivide = 3
@@ -225,16 +226,27 @@ def convertCloth():
     cmds.setAttr(name + 'nCloth1.selfCollideWidthScale', 2.0)
     cmds.setAttr(name + 'nCloth1.trappedCheck', 1)
     cmds.setAttr(name + 'nCloth1.selfTrappedCheck', 1)
-    
+  
     #curtain folds
     if (isCurtain):
-        
         cmds.currentTime(10)
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
         cmds.currentTime(20)
         cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
-    
+        vtxnums = []
+        #if (clothSubdivide == 2):
+        vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
+        '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
+        '.vtx[527:528]', '.vtx[569:570]', '.vtx[611:612]', '.vtx[653:654]', '.vtx[695:696]', '.vtx[737:738]', '.vtx[779:780]', '.vtx[821:822]', '.vtx[1685:1688]', 
+        '.vtx[1769:1772]', '.vtx[1853:1856]', '.vtx[1937:1940]', '.vtx[2021:2024]', '.vtx[2105:2108]', '.vtx[2189:2192]', '.vtx[2273:2276]', '.vtx[2357:2360]', 
+        '.vtx[2441:2444]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}clothmesh{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
                 
