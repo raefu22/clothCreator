@@ -22,6 +22,16 @@ def showTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
     cmds.floatSliderGrp(tableScale, edit=True, enable=True)
 
+def showColorOp(*args):
+    showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True)
+    cmds.colorSliderGrp(pickColor, edit=True, enable=True)
+    cmds.radioButtonGrp(materialType, edit=True, enable=True)
+   
+def hideColorOp(*args):
+    showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True, vis = False, v1 = False)
+    cmds.colorSliderGrp(pickColor, edit=True, enable=False)
+    cmds.radioButtonGrp(materialType, edit=True, enable=False)
+
 window = cmds.window(title='Cloth Converter', menuBar = True, width=250)
 container = cmds.columnLayout()
 cols = cmds.rowLayout(numberOfColumns=3, p=container)
@@ -48,6 +58,17 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 cmds.checkBoxGrp(useTable, edit=True, enable=False)
 cmds.floatSliderGrp(tableScale, edit=True, enable=False)
 
+cmds.separator(height = 10)
+applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
+cmds.separator(height = 5)
+materialType = cmds.radioButtonGrp('materialType', label='Material Type ', labelArray4=['Cotton', 'Velvet', 'Satin', 'Plaid'], numberOfRadioButtons=4)
+#add a fun/odd/fantastical materials section and have 'Iridescent'
+cmds.separator(height = 5)
+pickColor = cmds.colorSliderGrp('colorpicked', label= 'Color', rgb=(0.272, 0.240, 0.237))
+cmds.colorSliderGrp(pickColor, edit=True, enable=False)
+cmds.radioButtonGrp(materialType, edit=True, enable=False)
+cmds.separator(height = 10)
+
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
 cmds.button(label="Convert into Cloth", c="convertCloth()", p = submitrow)
@@ -70,6 +91,10 @@ def convertCloth():
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
+    applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
+    materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
+    maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
+        
     if (isTablecloth):
         useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
         tableScale = cmds.floatSliderGrp('tableScale', q = True, v = True)
@@ -86,7 +111,6 @@ def convertCloth():
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
     elif (isCurtain):
         div = width * 4
-        print(div)
         cmds.polyCylinder( r=0.15, h=width, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
@@ -248,10 +272,28 @@ def convertCloth():
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
     #material
-    shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader')
-                
+    shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
-        
+    if applyMaterial:
+        if (materialType == 0):
+            cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
+            cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture1') 
+            cmds.connectAttr(name + 'place2dTexture1.outUV', name + 'clothTex1.uv')
+            cmds.connectAttr(name + 'place2dTexture1.outUvFilterSize', name + 'clothTex1.uvFilterSize')
+            cmds.shadingNode('aiLayerRgba', asUtility = True, n=name + 'aiLayerRgba1')
+            cmds.connectAttr(name + 'clothTex1.outColor', name + 'aiLayerRgba1.input1')
+            cmds.connectAttr(name + 'aiLayerRgba1.outColor', name + 'shader.baseColor')
+            cmds.shadingNode('aiColorCorrect', asUtility = True, n=name + 'aiColorCorrect1')
+            cmds.connectAttr(name + 'aiLayerRgba1.outColor', name + 'aiColorCorrect1.input')
+            cmds.connectAttr(name + 'aiColorCorrect1.outColor', name + 'shader.sheenColor')
+            cmds.shadingNode('bump2d', asUtility=True, n=name + 'bump2d1')
+            cmds.connectAttr(name + 'clothTex1.outAlpha', name + 'bump2d1.bumpValue')
+            cmds.connectAttr(name + 'bump2d1.outNormal', name + 'shader.normalCamera')
+            #revising values
+            cmds.setAttr(name + 'place2dTexture1.repeatU', 250)
+            cmds.setAttr(name + 'place2dTexture1.repeatV', 250)
+            cmds.setAttr(name + 'clothTex1.uColor', 0.265734, 0.265734, 0.265734, type='double3')
+            cmds.setAttr(name + 'clothTex1.vColor', 0.167832, 0.167832, 0.167832, type='double3')
