@@ -85,7 +85,9 @@ def convertCloth():
             cmds.select(name + 'collider')
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
     elif (isCurtain):
+        print(width * 4)
         cmds.polyCylinder( r=0.15, h=width, sh=width * 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
+        
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
         cmds.select(name + 'collider')
         
@@ -204,8 +206,29 @@ def convertCloth():
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
     cmds.setAttr(name + 'nCloth1.stretchResistance', 120)
     
+    #nCloth tablecloth adjustments (loosely based on t-shirt preset)
+    cmds.setAttr(name + 'nCloth1.friction', 0.3)
+    cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
+    cmds.setAttr(name + 'nCloth1.stretchResistance', 35)
+    cmds.setAttr(name + 'nCloth1.bendAngleDropoff', 0.4)
+    #t-shirt is 0.6 
+    cmds.setAttr(name + 'nCloth1.pointMass', 0.8)
+    cmds.setAttr(name + 'nCloth1.lift', 0.05)
+    #t-shirt is 0.1 
+    cmds.setAttr(name + 'nCloth1.tangentialDrag', 0.04)
+    #t-shirt is 0.8
+    cmds.setAttr(name + 'nCloth1.damp', 0.1)
+    cmds.setAttr(name + 'nCloth1.scalingRelation', 1)
+    
+    #avoid intersecting itself | self collide
+    cmds.setAttr(name + 'nCloth1.thickness', 0.05)
+    cmds.setAttr(name + 'nCloth1.selfCollideWidthScale', 2.0)
+    cmds.setAttr(name + 'nCloth1.trappedCheck', 1)
+    cmds.setAttr(name + 'nCloth1.selfTrappedCheck', 1)
+    
     #curtain folds
     if (isCurtain):
+        
         cmds.currentTime(10)
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
