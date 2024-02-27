@@ -2,6 +2,7 @@ import maya.cmds as cmds
 import random
 import math
 import maya.mel as mel
+import colorsys
 
 #UI window
 def showTableclothOp(*args):
@@ -277,8 +278,14 @@ def convertCloth():
     cmds.select(outMesh)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
+    #get a lighter color for sheen
+    hsv = colorsys.rgb_to_hsv(maincolor[0], maincolor[1], maincolor[2])
+    saturation = hsv[0] - 0.2
+    value = hsv[2] + 0.4
+    lighterColor = colorsys.hsv_to_rgb(hsv[0], saturation, value)
+    
     if applyMaterial:
-        if (materialType == 0):
+        if (materialType == 1):
             cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
             cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture1') 
             cmds.connectAttr(name + 'place2dTexture1.outUV', name + 'clothTex1.uv')
@@ -297,3 +304,48 @@ def convertCloth():
             cmds.setAttr(name + 'place2dTexture1.repeatV', 250)
             cmds.setAttr(name + 'clothTex1.uColor', 0.265734, 0.265734, 0.265734, type='double3')
             cmds.setAttr(name + 'clothTex1.vColor', 0.167832, 0.167832, 0.167832, type='double3')
+            cmds.setAttr(name + 'aiLayerRgba1.enable2', 1)
+            cmds.setAttr(name + 'aiLayerRgba1.input2', maincolor[0], maincolor[1], maincolor[2], type='double3')
+            cmds.setAttr(name + 'aiLayerRgba1.operation2', 24)
+            cmds.setAttr(name + 'aiColorCorrect1.gamma', 3.0)
+            cmds.setAttr(name + 'bump2d1.bumpDepth', 2)
+            cmds.setAttr(name + 'shader.specular', 0)
+            cmds.setAttr(name + 'shader.sheen', 1)
+            cmds.setAttr(name + 'shader.sheenRoughness', 0.35)
+        elif (materialType == 2):    
+            cmds.setAttr(name + 'shader.specular', 0)
+            cmds.setAttr(name + 'shader.baseColor', maincolor[0], maincolor[1], maincolor[2], type='double3')
+            cmds.setAttr(name + 'shader.sheen', 1)
+            cmds.setAttr(name + 'shader.sheenColor', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
+            cmds.setAttr(name + 'shader.sheenRoughness', 0.2)
+        elif (materialType == 3):    
+            cmds.setAttr(name + 'shader.specular', 0)
+            cmds.shadingNode('aiFacingRatio', asUtility = True, n=name + 'aiFacingRatio1')
+            cmds.shadingNode('remapValue', asUtility = True, n=name + 'remapValue1')
+            cmds.connectAttr(name + 'aiFacingRatio1.outValue', name + 'remapValue1.inputValue')
+            cmds.shadingNode('aiLayerRgba', asUtility = True, n=name + 'aiLayerRgba1')
+            cmds.connectAttr(name + 'remapValue1.outValue', name + 'aiLayerRgba1.mix2')
+            cmds.connectAttr(name + 'aiLayerRgba1.outColor', name + 'shader.baseColor')
+            
+            cmds.setAttr(name + 'remapValue1.value[2].value_Position', 0.469565)
+            cmds.setAttr(name + 'remapValue1.value[2].value_Interp', 3) 
+            cmds.setAttr(name + 'remapValue1.value[2].value_FloatValue', 0.18)
+            cmds.setAttr(name + 'remapValue1.value[0].value_Interp', 3)
+            cmds.setAttr(name + 'remapValue1.value[1].value_Interp', 3)
+            cmds.setAttr(name + 'remapValue1.value[1].value_FloatValue', 0.3)
+            cmds.setAttr(name + 'remapValue1.value[3].value_FloatValue', 0.42)
+            cmds.setAttr(name + 'remapValue1.value[3].value_Position', 0.634783)
+            cmds.setAttr(name + 'remapValue1.value[3].value_Interp', 3)
+            cmds.setAttr(name + 'remapValue1.value[4].value_FloatValue', 0.72)
+            cmds.setAttr(name + 'remapValue1.value[4].value_Position', 0.730435)
+            cmds.setAttr(name + 'remapValue1.value[4].value_Interp', 3)
+            cmds.setAttr(name + 'remapValue1.value[5].value_FloatValue', 1)
+            cmds.setAttr(name + 'remapValue1.value[5].value_Position', 0.86087)
+            cmds.setAttr(name + 'remapValue1.value[5].value_Interp', 3)
+            cmds.setAttr(name + 'remapValue1.value[6].value_FloatValue', 0.74)
+            cmds.setAttr(name + 'remapValue1.value[6].value_Position', 0.947826)
+            cmds.setAttr(name + 'remapValue1.value[6].value_Interp', 3)
+            cmds.setAttr(name + 'aiLayerRgba1.input1', maincolor[0], maincolor[1], maincolor[2], type='double3')
+            cmds.setAttr(name + 'aiLayerRgba1.enable2', 1)
+            cmds.setAttr(name + 'aiLayerRgba1.input2', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
+            cmds.setAttr(name + 'aiLayerRgba1.alphaOperation1', 2)
