@@ -365,8 +365,10 @@ def convertCloth():
             hue = hsv[0] + 50
             if (hue > 360):
                 hue = hue - 360
+            print(hue)
             value = 1
-            complcolor = colorsys.hsv_to_rgb(hue, hsv[1], value)
+            #complcolor = colorsys.hsv_to_rgb(hue, hsv[1], value)
+            complcolor = (maincolor[0], random.uniform(0, 0.5939), random.uniform(0, 0.7131))
             cmds.setAttr(name + 'rampHorizontal.colorEntryList[1].color', complcolor[0], complcolor[1], complcolor[2], type='double3')
             #vertical stripes
             cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'verticalStripes') 
@@ -379,6 +381,7 @@ def convertCloth():
             cmds.setAttr(name + 'rampVertical.colorEntryList[1].position', 0.5)
             cmds.setAttr(name + 'rampVertical.interpolation', 0)
             hue = hsv[0] + 30
+            print(hue)
             if (hue > 360):
                 hue = hue - 360
             value = 1
