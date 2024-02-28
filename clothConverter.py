@@ -349,3 +349,66 @@ def convertCloth():
             cmds.setAttr(name + 'aiLayerRgba1.enable2', 1)
             cmds.setAttr(name + 'aiLayerRgba1.input2', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
             cmds.setAttr(name + 'aiLayerRgba1.alphaOperation1', 2)
+        elif(materialType == 4):
+            cmds.rename(name + 'shader', name + 'horizontalStripes')
+            shader = cmds.shadingNode('aiMixShader', asShader = True, n=name + 'shader') 
+            cmds.select(outMesh)
+            cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
+            cmds.shadingNode('ramp', asTexture=True, n = name + 'rampHorizontal')
+            cmds.shadingNode('place2dTexture', asUtility = True, n=name+'place2dTexture1')
+            cmds.connectAttr(name + 'place2dTexture1.outUV', name + 'rampHorizontal.uv') 
+            cmds.connectAttr(name + 'place2dTexture1.outUvFilterSize', name + 'rampHorizontal.uvFilterSize')
+            cmds.connectAttr(name + 'rampHorizontal.outColor', name + 'horizontalStripes.baseColor') 
+            cmds.setAttr(name + 'rampHorizontal.colorEntryList[0].color', maincolor[0], maincolor[1], maincolor[2], type='double3')
+            cmds.setAttr(name + 'rampHorizontal.colorEntryList[1].position', 0.5)
+            cmds.setAttr(name + 'rampHorizontal.interpolation', 0)
+            hue = hsv[0] + 50
+            if (hue > 360):
+                hue = hue - 360
+            print(hue)
+            value = 1
+            #complcolor = colorsys.hsv_to_rgb(hue, hsv[1], value)
+            complcolor = (maincolor[0], random.uniform(0, 0.5939), random.uniform(0, 0.7131))
+            cmds.setAttr(name + 'rampHorizontal.colorEntryList[1].color', complcolor[0], complcolor[1], complcolor[2], type='double3')
+            #vertical stripes
+            cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'verticalStripes') 
+            cmds.shadingNode('ramp', asTexture=True, n = name + 'rampVertical')
+            cmds.shadingNode('place2dTexture', asUtility = True, n=name+'place2dTexture2')
+            cmds.connectAttr(name + 'place2dTexture2.outUV', name + 'rampVertical.uv') 
+            cmds.connectAttr(name + 'place2dTexture2.outUvFilterSize', name + 'rampVertical.uvFilterSize')
+            cmds.connectAttr(name + 'rampVertical.outColor', name + 'verticalStripes.baseColor') 
+            cmds.setAttr(name + 'place2dTexture2.rotateUV', 90) 
+            cmds.setAttr(name + 'rampVertical.colorEntryList[1].position', 0.5)
+            cmds.setAttr(name + 'rampVertical.interpolation', 0)
+            hue = hsv[0] + 30
+            print(hue)
+            if (hue > 360):
+                hue = hue - 360
+            value = 1
+            complcolor2 = colorsys.hsv_to_rgb(hue, hsv[1], value)
+            cmds.setAttr(name + 'rampVertical.colorEntryList[0].color', complcolor2[0], complcolor2[1], complcolor2[2], type='double3')
+            cmds.setAttr(name + 'rampVertical.colorEntryList[1].color', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
+            cmds.setAttr(name + 'place2dTexture1.repeatU', 10)
+            cmds.setAttr(name + 'place2dTexture1.repeatV', 10)
+            cmds.setAttr(name + 'place2dTexture2.repeatU', 10)
+            cmds.setAttr(name + 'place2dTexture2.repeatV', 10)
+            #cloth normal
+            cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
+            cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture3') 
+            cmds.connectAttr(name + 'place2dTexture3.outUV', name + 'clothTex1.uv')
+            cmds.connectAttr(name + 'place2dTexture3.outUvFilterSize', name + 'clothTex1.uvFilterSize')
+            cmds.shadingNode('bump2d', asUtility=True, n=name + 'bump2d1')
+            cmds.connectAttr(name + 'clothTex1.outAlpha', name + 'bump2d1.bumpValue')
+            cmds.connectAttr(name + 'bump2d1.outNormal', name + 'horizontalStripes.normalCamera')
+            cmds.connectAttr(name + 'bump2d1.outNormal', name + 'verticalStripes.normalCamera')
+            cmds.setAttr(name + 'place2dTexture3.repeatU', 250)
+            cmds.setAttr(name + 'place2dTexture3.repeatV', 250)
+            cmds.setAttr(name + 'clothTex1.uColor', 0.265734, 0.265734, 0.265734, type='double3')
+            cmds.setAttr(name + 'clothTex1.vColor', 0.167832, 0.167832, 0.167832, type='double3')
+            #general
+            cmds.setAttr(name + 'horizontalStripes.sheen', 0.2)
+            cmds.setAttr(name + 'horizontalStripes.specularRoughness', 0.51)
+            cmds.setAttr(name + 'verticalStripes.sheen', 0.2)
+            cmds.setAttr(name + 'verticalStripes.specularRoughness', 0.51)
+            cmds.connectAttr(name + 'horizontalStripes.outColor', name + 'shader.shader1')
+            cmds.connectAttr(name + 'verticalStripes.outColor', name + 'shader.shader2')
