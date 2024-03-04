@@ -112,7 +112,7 @@ def convertCloth():
             cmds.scale(tableScale, tableScale, tableScale, relative = True)
     elif (isCurtain):
         div = width * 4
-        cmds.polyCylinder( r=0.15, h=width, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
+        cmds.polyCylinder( r=0.15, h=width + 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
