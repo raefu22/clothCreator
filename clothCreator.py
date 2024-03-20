@@ -59,7 +59,14 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 cmds.checkBoxGrp(useTable, edit=True, enable=False)
 cmds.floatSliderGrp(tableScale, edit=True, enable=False)
 
+
+
 cmds.separator(height = 10)
+
+
+tieBack= cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie back curtain ')
+cmds.separator(height = 10)
+
 applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
 cmds.separator(height = 5)
 materialType = cmds.radioButtonGrp('materialType', label='Material Type ', labelArray4=['Cotton', 'Velvet', 'Satin', 'Plaid'], numberOfRadioButtons=4)
@@ -92,6 +99,8 @@ def createCloth():
     length = cmds.floatSliderGrp('length', q = True, v = True)
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
+        
+    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)    
         
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
@@ -161,6 +170,20 @@ def createCloth():
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     if isCurtain:
         cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
+        cmds.polyTorus(r=1, sr=0.5, tw=0, sx=20, s= 20, ax=[0, 1, 0], cuv=1, ch =1, n = name + 'torusTie')
+        cmds.setAttr(name + 'torusTie.sectionRadius', 0.03)
+        cmds.currentTime(1)
+        cmds.select(name + 'torusTie')
+        if( `getAttr -k "torusTie.sx"`||`getAttr -channelBox "torusTie.sx"`):
+            cmds.setKeyframe('torusTie.sx')
+        if( `getAttr -k "torusTie.sy"`||`getAttr -channelBox "torusTie.sy"` )setKeyframe "torusTie.sy";
+        if( `getAttr -k "torusTie.sz"`||`getAttr -channelBox "torusTie.sz"` )setKeyframe "pTorus1.sz";
+    
+    currentTime 117 ;
+scale -ws -r 0.183684 0.183684 0.183684 ;
+if( `getAttr -k "pTorus1.sx"`||`getAttr -channelBox "pTorus1.sx"` )setKeyframe "pTorus1.sx";
+if( `getAttr -k "pTorus1.sy"`||`getAttr -channelBox "pTorus1.sy"` )setKeyframe "pTorus1.sy";
+if( `getAttr -k "pTorus1.sz"`||`getAttr -channelBox "pTorus1.sz"` )setKeyframe "pTorus1.sz";
     
     #cloth location
     clothLocation = [0, 2, 0]
