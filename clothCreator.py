@@ -114,7 +114,6 @@ def createCloth():
         if (useTable == True):
             table = cmds.ls(selection = True, sn=True)
             colliderName = table[0]
-            
             collider = cmds.duplicate(colliderName, n = name + 'collider')
             
         else:
@@ -170,24 +169,7 @@ def createCloth():
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     if isCurtain:
         cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
-        cmds.polyTorus(r=width/2+1, sr=0.03, tw=0, sx=20, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
-        cmds.currentTime(1)
-        cmds.select(name + 'torusTie')
-        if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
-            cmds.setKeyframe(name + 'torusTie.sx')
-        if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
-            cmds.setKeyframe(name + 'torusTie.sy')
-        if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
-            cmds.setKeyframe(name + 'torusTie.sz')
-        cmds.currentTime(117)
-        cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
-        if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
-            cmds.setKeyframe(name + 'torusTie.sx')
-        if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
-            cmds.setKeyframe(name + 'torusTie.sy')
-        if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
-            cmds.setKeyframe(name + 'torusTie.sz')
-      
+        
     #cloth location
     clothLocation = [0, 2, 0]
     if (useTable):
@@ -300,6 +282,32 @@ def createCloth():
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
+        if (tieBack):
+            cmds.polyTorus(r=width/2+1, sr=0.5, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
+            cmds.currentTime(1)
+            cmds.select(name + 'torusTie')
+            if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'torusTie.sx')
+            if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'torusTie.sy')
+            if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'torusTie.sz')
+            cmds.currentTime(117)
+            cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
+            if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'torusTie.sx')
+            if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'torusTie.sy')
+            if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'torusTie.sz')
+            cmds.polySmooth(name + 'torusTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
+            cmds.createNode('nRigid', name=name + 'torusTienRigid')
+            cmds.connectAttr(name + 'torusTie' + 'Shape.worldMesh[0]', name + 'torusTienRigid.inputMesh')
+            cmds.connectAttr(name + 'torusTienRigid.currentState', name + 'nucleus1.inputPassive[2]')
+            cmds.connectAttr(name + 'torusTienRigid.startState', name + 'nucleus1.inputPassiveStart[2]')
+            cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
+            cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
+            cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
