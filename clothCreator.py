@@ -59,7 +59,14 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 cmds.checkBoxGrp(useTable, edit=True, enable=False)
 cmds.floatSliderGrp(tableScale, edit=True, enable=False)
 
+
+
 cmds.separator(height = 10)
+
+
+tieBack= cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie back curtain ')
+cmds.separator(height = 10)
+
 applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
 cmds.separator(height = 5)
 materialType = cmds.radioButtonGrp('materialType', label='Material Type ', labelArray4=['Cotton', 'Velvet', 'Satin', 'Plaid'], numberOfRadioButtons=4)
@@ -93,6 +100,8 @@ def createCloth():
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
+    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)    
+        
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
@@ -105,7 +114,6 @@ def createCloth():
         if (useTable == True):
             table = cmds.ls(selection = True, sn=True)
             colliderName = table[0]
-            
             collider = cmds.duplicate(colliderName, n = name + 'collider')
             
         else:
@@ -161,7 +169,7 @@ def createCloth():
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     if isCurtain:
         cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
-    
+        
     #cloth location
     clothLocation = [0, 2, 0]
     if (useTable):
@@ -274,6 +282,32 @@ def createCloth():
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
+        if (tieBack):
+            cmds.polyTorus(r=width/2+1, sr=0.5, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
+            cmds.currentTime(1)
+            cmds.select(name + 'torusTie')
+            if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'torusTie.sx')
+            if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'torusTie.sy')
+            if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'torusTie.sz')
+            cmds.currentTime(117)
+            cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
+            if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'torusTie.sx')
+            if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'torusTie.sy')
+            if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'torusTie.sz')
+            cmds.polySmooth(name + 'torusTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
+            cmds.createNode('nRigid', name=name + 'torusTienRigid')
+            cmds.connectAttr(name + 'torusTie' + 'Shape.worldMesh[0]', name + 'torusTienRigid.inputMesh')
+            cmds.connectAttr(name + 'torusTienRigid.currentState', name + 'nucleus1.inputPassive[2]')
+            cmds.connectAttr(name + 'torusTienRigid.startState', name + 'nucleus1.inputPassiveStart[2]')
+            cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
+            cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
+            cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
@@ -293,6 +327,7 @@ def createCloth():
             cmds.setAttr(name + 'shader.baseColor', 0.51, 0.51, 0.51, type='double3')
             cmds.setAttr(name + 'shader.metalness', 0.5)
             cmds.setAttr(name + 'shader.thinFilmThickness', 419.580)
+            materialType = 1
         if (materialType == 1):
             cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
             cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture1') 
