@@ -170,21 +170,24 @@ def createCloth():
     clothmesh = cmds.scale(ratio, 1, 1, relative = True)
     if isCurtain:
         cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
-        cmds.polyTorus(r=1, sr=0.5, tw=0, sx=20, s= 20, ax=[0, 1, 0], cuv=1, ch =1, n = name + 'torusTie')
-        cmds.setAttr(name + 'torusTie.sectionRadius', 0.03)
+        cmds.polyTorus(r=width/2+1, sr=0.03, tw=0, sx=20, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
         cmds.currentTime(1)
         cmds.select(name + 'torusTie')
-        if( `getAttr -k "torusTie.sx"`||`getAttr -channelBox "torusTie.sx"`):
-            cmds.setKeyframe('torusTie.sx')
-        if( `getAttr -k "torusTie.sy"`||`getAttr -channelBox "torusTie.sy"` )setKeyframe "torusTie.sy";
-        if( `getAttr -k "torusTie.sz"`||`getAttr -channelBox "torusTie.sz"` )setKeyframe "pTorus1.sz";
-    
-    currentTime 117 ;
-scale -ws -r 0.183684 0.183684 0.183684 ;
-if( `getAttr -k "pTorus1.sx"`||`getAttr -channelBox "pTorus1.sx"` )setKeyframe "pTorus1.sx";
-if( `getAttr -k "pTorus1.sy"`||`getAttr -channelBox "pTorus1.sy"` )setKeyframe "pTorus1.sy";
-if( `getAttr -k "pTorus1.sz"`||`getAttr -channelBox "pTorus1.sz"` )setKeyframe "pTorus1.sz";
-    
+        if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+            cmds.setKeyframe(name + 'torusTie.sx')
+        if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+            cmds.setKeyframe(name + 'torusTie.sy')
+        if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+            cmds.setKeyframe(name + 'torusTie.sz')
+        cmds.currentTime(117)
+        cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
+        if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
+            cmds.setKeyframe(name + 'torusTie.sx')
+        if(cmds.getAttr(name + 'torusTie.sy', k=True) or cmds.getAttr(name + 'torusTie.sy', ch = True)):
+            cmds.setKeyframe(name + 'torusTie.sy')
+        if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
+            cmds.setKeyframe(name + 'torusTie.sz')
+      
     #cloth location
     clothLocation = [0, 2, 0]
     if (useTable):
@@ -316,6 +319,7 @@ if( `getAttr -k "pTorus1.sz"`||`getAttr -channelBox "pTorus1.sz"` )setKeyframe "
             cmds.setAttr(name + 'shader.baseColor', 0.51, 0.51, 0.51, type='double3')
             cmds.setAttr(name + 'shader.metalness', 0.5)
             cmds.setAttr(name + 'shader.thinFilmThickness', 419.580)
+            materialType = 1
         if (materialType == 1):
             cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
             cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture1') 
