@@ -283,7 +283,9 @@ def createCloth():
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
         if (tieBack):
-            cmds.polyTorus(r=width/2+1, sr=0.5, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
+            cmds.polyTorus(r=width/2+1, sr=0.1, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
+            cmds.select(name + 'torusTie')
+            cmds.move(0, length/2 - length/3, 0) 
             cmds.currentTime(1)
             cmds.select(name + 'torusTie')
             if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
