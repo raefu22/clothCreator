@@ -48,6 +48,7 @@ nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
 isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ')
+isRibbonBow = cmds.checkBoxGrp('isRibbonBow', numberOfCheckBoxes=1, label='Is ribbon bow ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
@@ -94,6 +95,7 @@ def createCloth():
     
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
     isCurtain = cmds.checkBoxGrp('isCurtain', q = True, v1=True)
+    isRibbonBow = cmds.checkBoxGrp('isRibbonBow', q = True, v1=True)
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
     length = cmds.floatSliderGrp('length', q = True, v = True)
@@ -126,7 +128,8 @@ def createCloth():
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
-        
+    elif (isRibbonBow):
+        cmds.polyPlane(w=1, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1)
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
@@ -247,9 +250,11 @@ def createCloth():
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
     cmds.setAttr(name + 'nCloth1.stretchResistance', 35)
     cmds.setAttr(name + 'nCloth1.bendAngleDropoff', 0.4)
-    #t-shirt is 0.6 
-    cmds.setAttr(name + 'nCloth1.pointMass', 0.8)
-    cmds.setAttr(name + 'nCloth1.lift', 0.05)
+    #t-shirt is 0.6 || 1st pass was 0.8, 0.05
+    cmds.setAttr(name + 'nCloth1.pointMass', 1.38)
+    cmds.setAttr(name + 'nCloth1.lift', 0.27)
+    
+    
     #t-shirt is 0.1 
     cmds.setAttr(name + 'nCloth1.tangentialDrag', 0.04)
     #t-shirt is 0.8
