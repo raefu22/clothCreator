@@ -129,7 +129,15 @@ def createCloth():
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
     elif (isRibbonBow):
-        cmds.polyPlane(w=1, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1)
+        cmds.polyPlane(w=3, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1. n= name + 'bow')
+        cmds.nonLinear( type='bend', curvature=0.5, n=name + 'bend1')
+        cmds.setAttr( name + 'bend1Handle.rotateZ', 90)
+        cmds.setAttr(name + 'bend1.curvature', 180)
+        cmds.delete(name + 'bow', constructionHistory = True)
+        cmds.select(name + 'bow')
+        cmds.scale(2.517025, 1, 1, ws= True, r=True)
+        #polyMergeVertex  -d 0.01 -am 1 -ch 1 pPlane10.vtx[0] pPlane10.vtx[10:11] pPlane10.vtx[21:22] pPlane10.vtx[32:33] pPlane10.vtx[43:44] pPlane10.vtx[54];
+        
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
