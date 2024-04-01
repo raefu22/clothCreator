@@ -129,6 +129,7 @@ def createCloth():
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
     elif (isRibbonBow):
+        #base shape
         cmds.polyPlane(w=3, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'bow')
         cmds.nonLinear( type='bend', curvature=0.5, n=name + 'bend1')
         cmds.setAttr( name + 'bend1Handle.rotateZ', 90)
@@ -143,7 +144,6 @@ def createCloth():
         cmds.polyMergeVertex(vtxs, d=0.01, am=1, ch=1)
         duplicatecircle = cmds.duplicate(name + 'bow')
         cmds.rename(duplicatecircle, name + 'bowcenter')
-        
         cmds.rotate(0,90,0,ws=True)
         edgenums = ['.e[11]', '.e[31]', '.e[51]', '.e[71]']
         edges = []
@@ -162,12 +162,31 @@ def createCloth():
         for edge in edgenums:
             edges.append(f'{name}bow{edge}')
         cmds.select(edges, add=True)
-        cmds.scale(1, 1, 0.318493, r = True, ws=True, ocp = True)
-        
-        
+        #0.32
+        cmds.scale(1, 1, 0.2, r = True, ws=True, ocp = True)
         cmds.select(name + 'bowcenter')
         cmds.move(0, -0.39, 0, r=True)
         cmds.scale(0.5, 0.5, 0.31, ws=True, r=True)
+        #refine base shape
+        edgenums = ['.e[66]', '.e[64]','.e[62]','.e[26]', '.e[24]', '.e[22]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(-0.13, 0, 0, r=True)
+        edgenums=['.e[72]', '.e[32]', '.e[34]', '.e[74]', '.e[76]', '.e[36]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0.13, 0, 0, r=True)
+        #'.vtx[0]', '.vtx[10]', '.vtx[20]', '.vtx[30]', '.vtx[40]', 
+        edgenums = ['.e[72]', '.e[60]', '.e[62]', '.e[64]', '.e[66]', '.e[68]', '.e[70]', '.e[72]', '.e[74]', '.e[76]', '.e[78]', '.e[32]', '.e[20]', '.e[22]', '.e[24]', '.e[26]', '.e[28]', '.e[30]', '.e[32]', '.e[34]', '.e[36]', '.e[38]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bowcenter{edge}')
+        cmds.select(edges)
+        cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
         
     else:
         if (useFolds == True):
