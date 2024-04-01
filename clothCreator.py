@@ -129,14 +129,45 @@ def createCloth():
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
     elif (isRibbonBow):
-        cmds.polyPlane(w=3, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1. n= name + 'bow')
+        cmds.polyPlane(w=3, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'bow')
         cmds.nonLinear( type='bend', curvature=0.5, n=name + 'bend1')
         cmds.setAttr( name + 'bend1Handle.rotateZ', 90)
-        cmds.setAttr(name + 'bend1.curvature', 180)
+        cmds.setAttr(name + 'bend1.curvature', -180)
         cmds.delete(name + 'bow', constructionHistory = True)
         cmds.select(name + 'bow')
         cmds.scale(2.517025, 1, 1, ws= True, r=True)
-        #polyMergeVertex  -d 0.01 -am 1 -ch 1 pPlane10.vtx[0] pPlane10.vtx[10:11] pPlane10.vtx[21:22] pPlane10.vtx[32:33] pPlane10.vtx[43:44] pPlane10.vtx[54];
+        vtxnums = ['.vtx[0]', '.vtx[10:11]', '.vtx[21:22]', '.vtx[32:33]', '.vtx[43:44]', '.vtx[54]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}bow{vtx}')
+        cmds.polyMergeVertex(vtxs, d=0.01, am=1, ch=1)
+        duplicatecircle = cmds.duplicate(name + 'bow')
+        cmds.rename(duplicatecircle, name + 'bowcenter')
+        
+        cmds.rotate(0,90,0,ws=True)
+        edgenums = ['.e[11]', '.e[31]', '.e[51]', '.e[71]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0, -0.8, 0, r=True)
+        edgenums = ['.e[1]', '.e[1]', '.e[21]', '.e[41]', '.e[61]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0, 0.2, 0, r=True)
+        edgenums = ['.e[11]', '.e[31]', '.e[51]', '.e[71]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges, add=True)
+        cmds.scale(1, 1, 0.318493, r = True, ws=True, ocp = True)
+        
+        
+        cmds.select(name + 'bowcenter')
+        cmds.move(0, -0.39, 0, r=True)
+        cmds.scale(0.5, 0.5, 0.31, ws=True, r=True)
         
     else:
         if (useFolds == True):
