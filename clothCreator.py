@@ -180,14 +180,15 @@ def createCloth():
             edges.append(f'{name}bow{edge}')
         cmds.select(edges)
         cmds.move(0.13, 0, 0, r=True)
-        #'.vtx[0]', '.vtx[10]', '.vtx[20]', '.vtx[30]', '.vtx[40]', 
+        
         edgenums = ['.e[72]', '.e[60]', '.e[62]', '.e[64]', '.e[66]', '.e[68]', '.e[70]', '.e[72]', '.e[74]', '.e[76]', '.e[78]', '.e[32]', '.e[20]', '.e[22]', '.e[24]', '.e[26]', '.e[28]', '.e[30]', '.e[32]', '.e[34]', '.e[36]', '.e[38]']
         edges = []
         for edge in edgenums:
             edges.append(f'{name}bowcenter{edge}')
         cmds.select(edges)
         cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
-        
+        cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1)
+        cmds.scale(0.473491, 1, 1, ws=True, r=True)
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
