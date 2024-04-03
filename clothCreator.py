@@ -187,8 +187,19 @@ def createCloth():
             edges.append(f'{name}bowcenter{edge}')
         cmds.select(edges)
         cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
-        cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1)
-        cmds.scale(0.473491, 1, 1, ws=True, r=True)
+        cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n=name + 'ribbon1')
+        cmds.setAttr(name + 'ribbon1.translateX', -0.53)
+        cmds.setAttr(name + 'ribbon1.translateY', 0.144)
+        cmds.setAttr(name + 'ribbon1.rotateX', -25.812)
+        cmds.setAttr(name + 'ribbon1.rotateY', -91.726)
+        cmds.setAttr(name + 'ribbon1.rotateZ', -0.809)
+        cmds.setAttr(name + 'ribbon1.scaleX', 0.378)
+        cmds.setAttr(name + 'ribbon1.scaleY', 1)
+        cmds.setAttr(name + 'ribbon1.scaleZ', 1.113)
+        #cmds.scale(0.473491, 1, 1, ws=True, r=True)
+        cmds.select(name + 'bow', name + 'bowcenter')
+        cmds.move(0, 0.667064, 0, r=True) 
+        
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
