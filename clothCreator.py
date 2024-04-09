@@ -345,7 +345,12 @@ def createCloth():
     cmds.setAttr(name + 'nCloth1.selfCollideWidthScale', 2.0)
     cmds.setAttr(name + 'nCloth1.trappedCheck', 1)
     cmds.setAttr(name + 'nCloth1.selfTrappedCheck', 1)
-  
+    
+    #ribbon bow adjustments
+    cmds.setAttr(name + 'nCloth1.bendResistance', 23)
+    cmds.setAttr(name + 'nCloth1.rigidity', 0.04)
+    cmds.setAttr(name + 'nCloth1.pointMass', 2.7)
+    
     #curtain folds
     if (isCurtain):
         cmds.currentTime(10)
@@ -394,6 +399,9 @@ def createCloth():
             cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
+    #hide objects in the scene/visibility
+    cmds.setAttr(name + 'clothmesh.visibility', 0)
+    
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
