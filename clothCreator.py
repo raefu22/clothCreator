@@ -188,27 +188,7 @@ def createCloth():
         cmds.select(edges)
         cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
         cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n=name + 'ribbon1')
-        '''
-        cmds.setAttr(name + 'ribbon1.translateX', -0.53)
-        cmds.setAttr(name + 'ribbon1.translateY', 0.288)
-        cmds.setAttr(name + 'ribbon1.translateZ', -0.146)
         
-        cmds.setAttr(name + 'ribbon1.rotateX', 60)
-        cmds.setAttr(name + 'ribbon1.rotateY', 2.651)
-        cmds.setAttr(name + 'ribbon1.rotateZ', -90.235)
-        cmds.setAttr(name + 'ribbon1.scaleX', 0.378)
-        cmds.setAttr(name + 'ribbon1.scaleY', 1)
-        cmds.setAttr(name + 'ribbon1.scaleZ', 1.113)
-        
-        cmds.move(-0.53, 0.288, -0.146, r=True)
-        cmds.rotate(60, 2.65, -90, r=True)
-        cmds.scale(0.378, 1, 1.11, r=True)
-        
-        cmds.rotate(-77.697265, -90, 0, r=True, os=True, fo=True)
-        cmds.move(-0.487543, 0.329619, 0, r=True)
-        cmds.scale(1, 1, 0.632294, ws=True, r=True)
-        cmds.move(0, 0, -0.0743922, r=True)
-        '''
         #cmds.scale(0.473491, 1, 1, ws=True, r=True)
         cmds.select(name + 'bow', name + 'bowcenter')
         cmds.move(0, 0.667064, 0, r=True) 
@@ -223,6 +203,12 @@ def createCloth():
         cmds.scale(0.258665, 1, 1.733546, ws=True, r=True)
         cmds.rotate(0, -90, 0, r=True, os=True, fo=True)
         cmds.move(-0.8, 0, -0.242509, r=True)
+        #ribbon2
+        cmds.duplicate(name + 'ribbon1', n=name + 'ribbon2')
+        cmds.select(name + 'ribbon2')
+        cmds.rotate(0, 180, 0, r=True, os=True, fo=True)
+        cmds.move(1.61, 0, 0, r=True)
+       
         
     else:
         if (useFolds == True):
@@ -402,6 +388,25 @@ def createCloth():
         vtxs = []
         for vtx in vtxnums:
             vtxs.append(f'{name}ribbon1{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
+        
+        #ribbon2
+        cmds.createNode('nCloth', name= name + 'nCloth3')
+        cmds.connectAttr(name + 'nucleus1.outputObjects[2]', name + 'nCloth3.nextState')
+        cmds.connectAttr(name + 'ribbon1Shape.worldMesh[0]', name + 'nCloth3.inputMesh')
+        cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth3.startFrame')
+        cmds.connectAttr(name + 'nCloth3.startState', name + 'nucleus1.inputActiveStart[2]')
+        cmds.connectAttr(name + 'nCloth3.currentState', name + 'nucleus1.inputActive[2]')
+        outMesh = cmds.createNode('mesh', n = name + 'cloth3')
+        cmds.connectAttr(name + 'nCloth3.outputMesh', name + 'cloth3.inMesh')
+        cmds.connectAttr('time.outTime', name + 'nCloth3.currentTime')
+        
+        vtxnums = ['.vtx[60]', '.vtx[61]', '.vtx[62]', '.vtx[63]', '.vtx[64]', '.vtx[65]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}ribbon2{vtx}')
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
