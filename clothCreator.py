@@ -279,6 +279,8 @@ def createCloth():
         clothSubdivide = 4
     clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
     
+    
+    
     #convert to nCloth
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
     
@@ -347,9 +349,38 @@ def createCloth():
     cmds.setAttr(name + 'nCloth1.selfTrappedCheck', 1)
     
     #ribbon bow adjustments
-    cmds.setAttr(name + 'nCloth1.bendResistance', 23)
-    cmds.setAttr(name + 'nCloth1.rigidity', 0.04)
-    cmds.setAttr(name + 'nCloth1.pointMass', 2.7)
+    if (isRibbonBow):
+        cmds.setAttr(name + 'nCloth1.bendResistance', 23)
+        cmds.setAttr(name + 'nCloth1.rigidity', 0.04)
+        cmds.setAttr(name + 'nCloth1.pointMass', 2.7)
+    
+        #connect bow to center
+        vtxnums = ['.vtx[121]', '.vtx[322]', '.vtx[5]', '.vtx[15]', '.vtx[25]', '.vtx[35]', '.vtx[45]', '.vtx[61]', '.vtx[81]', '.vtx[101]', '.vtx[121]', '.vtx[202:203]', '.vtx[242:243]', '.vtx[282:283]', '.vtx[322:323]',
+        '.vtx[302]', '.vtx[30]', '.vtx[0]', '.vtx[10]', '.vtx[20]', '.vtx[30]', '.vtx[40]', '.vtx[51]', '.vtx[71]', '.vtx[91]', '.vtx[111]', '.vtx[182:183]', '.vtx[222:223]', '.vtx[262:263]', '.vtx[302:303]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}clothmesh{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
+        
+        #squeeze center
+        cmds.currentTime(0)
+        cmds.select(name + 'collider')
+        cmds.setKeyframe(name + 'collider', attribute='sx', v=1)
+        cmds.currentTime(15)
+        cmds.setKeyframe(name + 'collider', attribute='sx', v=0.6)
+        
+        #ribbon
+        cmds.createNode('nCloth', name= name + 'nCloth2')
+        cmds.connectAttr(name + 'nucleus1.outputObjects[1]', name + 'nCloth2.nextState')
+        cmds.connectAttr(name + 'clothmeshShape.worldMesh[0]', name + 'nCloth2.inputMesh')
+        cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth2.startFrame')
+        cmds.connectAttr(name + 'nCloth2.startState', name + 'nucleus1.inputActiveStart[1]')
+        cmds.connectAttr(name + 'nCloth2.currentState', name + 'nucleus1.inputActive[1]')
+        outMesh = cmds.createNode('mesh', n = name + 'cloth2')
+        cmds.connectAttr(name + 'nCloth2.outputMesh', name + 'cloth2.inMesh')
+        cmds.connectAttr('time.outTime', name + 'nCloth2.currentTime')
     
     #curtain folds
     if (isCurtain):
