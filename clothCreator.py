@@ -197,7 +197,7 @@ def createCloth():
         cmds.select(name + 'bow')
         cmds.move(0, -0.35, 0.428669, r=True)
         cmds.rename(name + 'bow', name + 'clothmesh')
-        cmds.rename(name + 'bowcenter', name + 'collider')
+        bowcentercollider = cmds.rename(name + 'bowcenter', name + 'collider')
         #cmds.move(0, -0.35, 0.428669, r=True)
         cmds.select(name + 'ribbon1')
         cmds.scale(0.258665, 1, 1.733546, ws=True, r=True)
@@ -485,7 +485,7 @@ def createCloth():
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
     if (isRibbonBow):
-        cmds.select([outRibbon1, outRibbon2], add=True)
+        cmds.select([outRibbon1, outRibbon2, bowcentercollider], add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
     #get a lighter color for sheen
