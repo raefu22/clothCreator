@@ -201,6 +201,8 @@ def createCloth():
         #cmds.move(0, -0.35, 0.428669, r=True)
         cmds.select(name + 'ribbon1')
         cmds.scale(0.258665, 1, 1.733546, ws=True, r=True)
+        cmds.scale(0.5, 1, 1, ws=True, r=True)
+        cmds.move(0, -0.08, 0, r=True)
         cmds.rotate(0, -90, 0, r=True, os=True, fo=True)
         cmds.move(-0.8, 0, -0.242509, r=True)
         #ribbon2
@@ -208,7 +210,13 @@ def createCloth():
         cmds.select(name + 'ribbon2')
         cmds.rotate(0, 180, 0, r=True, os=True, fo=True)
         cmds.move(1.61, 0, 0, r=True)
-       
+        cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
+        cmds.move(0, -0.36, 0, r=True)
+        
+        cmds.select(name + 'ribbon1')
+        cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
+        cmds.move(0, -0.36, 0, r=True)
+
         
     else:
         if (useFolds == True):
@@ -380,7 +388,7 @@ def createCloth():
         cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth2.startFrame')
         cmds.connectAttr(name + 'nCloth2.startState', name + 'nucleus1.inputActiveStart[1]')
         cmds.connectAttr(name + 'nCloth2.currentState', name + 'nucleus1.inputActive[1]')
-        outMesh = cmds.createNode('mesh', n = name + 'cloth2')
+        outRibbon1 = cmds.createNode('mesh', n = name + 'cloth2')
         cmds.connectAttr(name + 'nCloth2.outputMesh', name + 'cloth2.inMesh')
         cmds.connectAttr('time.outTime', name + 'nCloth2.currentTime')
         
@@ -395,11 +403,11 @@ def createCloth():
         #ribbon2
         cmds.createNode('nCloth', name= name + 'nCloth3')
         cmds.connectAttr(name + 'nucleus1.outputObjects[2]', name + 'nCloth3.nextState')
-        cmds.connectAttr(name + 'ribbon1Shape.worldMesh[0]', name + 'nCloth3.inputMesh')
+        cmds.connectAttr(name + 'ribbon2Shape.worldMesh[0]', name + 'nCloth3.inputMesh')
         cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth3.startFrame')
         cmds.connectAttr(name + 'nCloth3.startState', name + 'nucleus1.inputActiveStart[2]')
         cmds.connectAttr(name + 'nCloth3.currentState', name + 'nucleus1.inputActive[2]')
-        outMesh = cmds.createNode('mesh', n = name + 'cloth3')
+        outRibbon2 = cmds.createNode('mesh', n = name + 'cloth3')
         cmds.connectAttr(name + 'nCloth3.outputMesh', name + 'cloth3.inMesh')
         cmds.connectAttr('time.outTime', name + 'nCloth3.currentTime')
         
@@ -410,7 +418,14 @@ def createCloth():
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
         mel.eval('createNConstraint pointToSurface 0;')
-                
+        
+        #ncloth attributes for ribbons
+        cmds.setAttr(name + 'nCloth2.thickness', 0.05)
+        cmds.setAttr(name + 'nCloth3.thickness', 0.05)
+        cmds.setAttr(name + 'nCloth2.pointMass', 0.61)
+        cmds.setAttr(name + 'nCloth3.pointMass', 0.61)
+        
+        
     #curtain folds
     if (isCurtain):
         cmds.currentTime(10)
@@ -460,12 +475,17 @@ def createCloth():
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
     #hide objects in the scene/visibility
-    cmds.setAttr(name + 'clothmesh.visibility', 0)
+    if (isRibbonBow):
+        cmds.setAttr(name + 'clothmesh.visibility', 0)
+        cmds.setAttr(name + 'ribbon1.visibility', 0)
+        cmds.setAttr(name + 'ribbon2.visibility', 0)
     
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
+    if (isRibbonBow):
+        cmds.select([outRibbon1, outRibbon2], add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
     #get a lighter color for sheen
