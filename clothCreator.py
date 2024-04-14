@@ -48,6 +48,7 @@ nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
 isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ')
+isRibbonBow = cmds.checkBoxGrp('isRibbonBow', numberOfCheckBoxes=1, label='Is ribbon bow ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
 cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
@@ -94,6 +95,7 @@ def createCloth():
     
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
     isCurtain = cmds.checkBoxGrp('isCurtain', q = True, v1=True)
+    isRibbonBow = cmds.checkBoxGrp('isRibbonBow', q = True, v1=True)
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
     length = cmds.floatSliderGrp('length', q = True, v = True)
@@ -126,6 +128,95 @@ def createCloth():
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
+    elif (isRibbonBow):
+        #base shape
+        cmds.polyPlane(w=3, h=1, sx=10, sy=4, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'bow')
+        cmds.nonLinear( type='bend', curvature=0.5, n=name + 'bend1')
+        cmds.setAttr( name + 'bend1Handle.rotateZ', 90)
+        cmds.setAttr(name + 'bend1.curvature', -180)
+        cmds.delete(name + 'bow', constructionHistory = True)
+        cmds.select(name + 'bow')
+        cmds.scale(2.517025, 1, 1, ws= True, r=True)
+        vtxnums = ['.vtx[0]', '.vtx[10:11]', '.vtx[21:22]', '.vtx[32:33]', '.vtx[43:44]', '.vtx[54]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}bow{vtx}')
+        cmds.polyMergeVertex(vtxs, d=0.01, am=1, ch=1)
+        duplicatecircle = cmds.duplicate(name + 'bow')
+        cmds.rename(duplicatecircle, name + 'bowcenter')
+        cmds.rotate(0,90,0,ws=True)
+        edgenums = ['.e[11]', '.e[31]', '.e[51]', '.e[71]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0, -0.8, 0, r=True)
+        edgenums = ['.e[1]', '.e[1]', '.e[21]', '.e[41]', '.e[61]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0, 0.2, 0, r=True)
+        edgenums = ['.e[11]', '.e[31]', '.e[51]', '.e[71]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges, add=True)
+        #0.32
+        cmds.scale(1, 1, 0.2, r = True, ws=True, ocp = True)
+        cmds.select(name + 'bowcenter')
+        cmds.move(0, -0.39, 0, r=True)
+        cmds.scale(0.5, 0.5, 0.31, ws=True, r=True)
+        #refine base shape
+        edgenums = ['.e[66]', '.e[64]','.e[62]','.e[26]', '.e[24]', '.e[22]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(-0.13, 0, 0, r=True)
+        edgenums=['.e[72]', '.e[32]', '.e[34]', '.e[74]', '.e[76]', '.e[36]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bow{edge}')
+        cmds.select(edges)
+        cmds.move(0.13, 0, 0, r=True)
+        
+        edgenums = ['.e[72]', '.e[60]', '.e[62]', '.e[64]', '.e[66]', '.e[68]', '.e[70]', '.e[72]', '.e[74]', '.e[76]', '.e[78]', '.e[32]', '.e[20]', '.e[22]', '.e[24]', '.e[26]', '.e[28]', '.e[30]', '.e[32]', '.e[34]', '.e[36]', '.e[38]']
+        edges = []
+        for edge in edgenums:
+            edges.append(f'{name}bowcenter{edge}')
+        cmds.select(edges)
+        cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
+        cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n=name + 'ribbon1')
+        
+        #cmds.scale(0.473491, 1, 1, ws=True, r=True)
+        cmds.select(name + 'bow', name + 'bowcenter')
+        cmds.move(0, 0.667064, 0, r=True) 
+        cmds.rotate(90, 0, 0, r=True)
+        #cmds.move(0, 0, -0.76, name + 'bow.scalePivot', name + 'bow.rotatePivot', r=True)
+        cmds.select(name + 'bow')
+        cmds.move(0, -0.35, 0.428669, r=True)
+        cmds.rename(name + 'bow', name + 'clothmesh')
+        cmds.rename(name + 'bowcenter', name + 'collider')
+        #cmds.move(0, -0.35, 0.428669, r=True)
+        cmds.select(name + 'ribbon1')
+        cmds.scale(0.258665, 1, 1.733546, ws=True, r=True)
+        cmds.scale(0.5, 1, 1, ws=True, r=True)
+        cmds.move(0, -0.08, 0, r=True)
+        cmds.rotate(0, -90, 0, r=True, os=True, fo=True)
+        cmds.move(-0.8, 0, -0.242509, r=True)
+        #ribbon2
+        cmds.duplicate(name + 'ribbon1', n=name + 'ribbon2')
+        cmds.select(name + 'ribbon2')
+        cmds.rotate(0, 180, 0, r=True, os=True, fo=True)
+        cmds.move(1.61, 0, 0, r=True)
+        cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
+        cmds.move(0, -0.36, 0, r=True)
+        
+        cmds.select(name + 'ribbon1')
+        cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
+        cmds.move(0, -0.36, 0, r=True)
+
         
     else:
         if (useFolds == True):
@@ -161,32 +252,33 @@ def createCloth():
         collider = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'collider')
     
     #cloth shape  
-    clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
-    if(clothShape == 1):    
-        clothmesh = cmds.polyCircularize(name + 'clothmesh')
-    cmds.select(name + 'clothmesh')
-    ratio = length/width
-    clothmesh = cmds.scale(ratio, 1, 1, relative = True)
-    if isCurtain:
-        cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
-        
-    #cloth location
-    clothLocation = [0, 2, 0]
-    if (useTable):
-        clothLocation = cmds.objectCenter(collider)
-        clothLocation[1] += 2
-    elif(useFolds):
-        clothLocation = cmds.objectCenter(name + 'foldsCollider')
-        cmds.select(name + 'collider')
-        cmds.move(clothLocation[0], 0, clothLocation[2], r=True)
-        clothLocation[1] += 2
-    elif(isCurtain):
-        cmds.select(name + 'collider')
-        moveup = length/2 + 0.2
-        cmds.move(0, moveup, 0, r=True)
-        clothLocation[1] = clothLocation[1]-2
-    cmds.select(name + 'clothmesh')
-    cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
+    if not isRibbonBow:
+        clothmesh = cmds.polyPlane(w=width, h=width, sx=10, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n= name + 'clothmesh')
+        if(clothShape == 1):    
+            clothmesh = cmds.polyCircularize(name + 'clothmesh')
+        cmds.select(name + 'clothmesh')
+        ratio = length/width
+        clothmesh = cmds.scale(ratio, 1, 1, relative = True)
+        if isCurtain:
+            cmds.rotate(90, 0, -90, r=True, os=True, fo=True)
+            
+        #cloth location
+        clothLocation = [0, 2, 0]
+        if (useTable):
+            clothLocation = cmds.objectCenter(collider)
+            clothLocation[1] += 2
+        elif(useFolds):
+            clothLocation = cmds.objectCenter(name + 'foldsCollider')
+            cmds.select(name + 'collider')
+            cmds.move(clothLocation[0], 0, clothLocation[2], r=True)
+            clothLocation[1] += 2
+        elif(isCurtain):
+            cmds.select(name + 'collider')
+            moveup = length/2 + 0.2
+            cmds.move(0, moveup, 0, r=True)
+            clothLocation[1] = clothLocation[1]-2
+        cmds.select(name + 'clothmesh')
+        cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
     #add subdivisions to cloth mesh
     
@@ -196,6 +288,8 @@ def createCloth():
     elif (width > 15 or length > 20):
         clothSubdivide = 4
     clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
+    
+    
     
     #convert to nCloth
     outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
@@ -247,9 +341,11 @@ def createCloth():
     cmds.setAttr(name + 'nCloth1.stickiness', 0.2)
     cmds.setAttr(name + 'nCloth1.stretchResistance', 35)
     cmds.setAttr(name + 'nCloth1.bendAngleDropoff', 0.4)
-    #t-shirt is 0.6 
-    cmds.setAttr(name + 'nCloth1.pointMass', 0.8)
-    cmds.setAttr(name + 'nCloth1.lift', 0.05)
+    #t-shirt is 0.6 || 1st pass was 0.8, 0.05
+    cmds.setAttr(name + 'nCloth1.pointMass', 1.38)
+    cmds.setAttr(name + 'nCloth1.lift', 0.27)
+    
+    
     #t-shirt is 0.1 
     cmds.setAttr(name + 'nCloth1.tangentialDrag', 0.04)
     #t-shirt is 0.8
@@ -261,7 +357,75 @@ def createCloth():
     cmds.setAttr(name + 'nCloth1.selfCollideWidthScale', 2.0)
     cmds.setAttr(name + 'nCloth1.trappedCheck', 1)
     cmds.setAttr(name + 'nCloth1.selfTrappedCheck', 1)
-  
+    
+    #ribbon bow adjustments
+    if (isRibbonBow):
+        cmds.setAttr(name + 'nCloth1.bendResistance', 23)
+        cmds.setAttr(name + 'nCloth1.rigidity', 0.04)
+        cmds.setAttr(name + 'nCloth1.pointMass', 2.7)
+    
+        #connect bow to center
+        vtxnums = ['.vtx[121]', '.vtx[322]', '.vtx[5]', '.vtx[15]', '.vtx[25]', '.vtx[35]', '.vtx[45]', '.vtx[61]', '.vtx[81]', '.vtx[101]', '.vtx[121]', '.vtx[202:203]', '.vtx[242:243]', '.vtx[282:283]', '.vtx[322:323]',
+        '.vtx[302]', '.vtx[30]', '.vtx[0]', '.vtx[10]', '.vtx[20]', '.vtx[30]', '.vtx[40]', '.vtx[51]', '.vtx[71]', '.vtx[91]', '.vtx[111]', '.vtx[182:183]', '.vtx[222:223]', '.vtx[262:263]', '.vtx[302:303]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}clothmesh{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
+        
+        #squeeze center
+        cmds.currentTime(0)
+        cmds.select(name + 'collider')
+        cmds.setKeyframe(name + 'collider', attribute='sx', v=1)
+        cmds.currentTime(25)
+        cmds.setKeyframe(name + 'collider', attribute='sx', v=0.6)
+        
+        #ribbon
+        cmds.createNode('nCloth', name= name + 'nCloth2')
+        cmds.connectAttr(name + 'nucleus1.outputObjects[1]', name + 'nCloth2.nextState')
+        cmds.connectAttr(name + 'ribbon1Shape.worldMesh[0]', name + 'nCloth2.inputMesh')
+        cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth2.startFrame')
+        cmds.connectAttr(name + 'nCloth2.startState', name + 'nucleus1.inputActiveStart[1]')
+        cmds.connectAttr(name + 'nCloth2.currentState', name + 'nucleus1.inputActive[1]')
+        outRibbon1 = cmds.createNode('mesh', n = name + 'cloth2')
+        cmds.connectAttr(name + 'nCloth2.outputMesh', name + 'cloth2.inMesh')
+        cmds.connectAttr('time.outTime', name + 'nCloth2.currentTime')
+        
+        vtxnums = ['.vtx[60]', '.vtx[61]', '.vtx[62]', '.vtx[63]', '.vtx[64]', '.vtx[65]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}ribbon1{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
+        
+        #ribbon2
+        cmds.createNode('nCloth', name= name + 'nCloth3')
+        cmds.connectAttr(name + 'nucleus1.outputObjects[2]', name + 'nCloth3.nextState')
+        cmds.connectAttr(name + 'ribbon2Shape.worldMesh[0]', name + 'nCloth3.inputMesh')
+        cmds.connectAttr(name + 'nucleus1.startFrame', name + 'nCloth3.startFrame')
+        cmds.connectAttr(name + 'nCloth3.startState', name + 'nucleus1.inputActiveStart[2]')
+        cmds.connectAttr(name + 'nCloth3.currentState', name + 'nucleus1.inputActive[2]')
+        outRibbon2 = cmds.createNode('mesh', n = name + 'cloth3')
+        cmds.connectAttr(name + 'nCloth3.outputMesh', name + 'cloth3.inMesh')
+        cmds.connectAttr('time.outTime', name + 'nCloth3.currentTime')
+        
+        vtxnums = ['.vtx[60]', '.vtx[61]', '.vtx[62]', '.vtx[63]', '.vtx[64]', '.vtx[65]']
+        vtxs = []
+        for vtx in vtxnums:
+            vtxs.append(f'{name}ribbon2{vtx}')
+        cmds.select(vtxs)
+        cmds.select(name + 'collider', add=True)
+        mel.eval('createNConstraint pointToSurface 0;')
+        
+        #ncloth attributes for ribbons
+        cmds.setAttr(name + 'nCloth2.thickness', 0.05)
+        cmds.setAttr(name + 'nCloth3.thickness', 0.05)
+        cmds.setAttr(name + 'nCloth2.pointMass', 0.61)
+        cmds.setAttr(name + 'nCloth3.pointMass', 0.61)
+        
+        
     #curtain folds
     if (isCurtain):
         cmds.currentTime(10)
@@ -310,10 +474,18 @@ def createCloth():
             cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
+    #hide objects in the scene/visibility
+    if (isRibbonBow):
+        cmds.setAttr(name + 'clothmesh.visibility', 0)
+        cmds.setAttr(name + 'ribbon1.visibility', 0)
+        cmds.setAttr(name + 'ribbon2.visibility', 0)
+    
     #material
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
+    if (isRibbonBow):
+        cmds.select([outRibbon1, outRibbon2], add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
     #get a lighter color for sheen
