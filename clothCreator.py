@@ -292,7 +292,7 @@ def createCloth():
     
     
     #convert to nCloth
-    outMesh = cmds.createNode('nRigid', name=name + 'nRigid1')
+    cmds.createNode('nRigid', name=name + 'nRigid1')
     
     cmds.connectAttr(name + 'collider' + 'Shape.worldMesh[0]', name + 'nRigid1.inputMesh')
     cmds.createNode('nucleus', name= name + 'nucleus1')
@@ -448,8 +448,29 @@ def createCloth():
         mel.eval('createNConstraint pointToSurface 0;')
         if (tieBack):
             cmds.polyTorus(r=width/2+1, sr=0.1, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
+            clothliketie = cmds.polyPipe(r=width/2+1, h=2, t=0.1, sa=20, sh=1, sc=4, ax=[0, 1, 0], cuv=1, rcp=0, ch=1, n= name + 'flatTie')
+            cmds.move(0, length/2 - length/3, 0) 
+            cmds.rotate(19, 0, 0, r=True, os=True, fo=True) 
+            cmds.currentTime(1)
+            cmds.select(name + 'flatTie')
+            if(cmds.getAttr(name + 'flatTie.sx', k=True) or cmds.getAttr(name + 'flatTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'flatTie.sx')
+            if(cmds.getAttr(name + 'flatTie.sy', k=True) or cmds.getAttr(name + 'flatTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'flatTie.sy')
+            if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'flatTie.sz')
+            cmds.currentTime(117)
+            cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
+            if(cmds.getAttr(name + 'flatTie.sx', k=True) or cmds.getAttr(name + 'flatTie.sx', cb = True)):
+                cmds.setKeyframe(name + 'flatTie.sx')
+            if(cmds.getAttr(name + 'flatTie.sy', k=True) or cmds.getAttr(name + 'flatTie.sy', ch = True)):
+                cmds.setKeyframe(name + 'flatTie.sy')
+            if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
+                cmds.setKeyframe(name + 'flatTie.sz')
+            cmds.polySmooth(name + 'flatTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.select(name + 'torusTie')
             cmds.move(0, length/2 - length/3, 0) 
+            cmds.rotate(19, 0, 0, r=True, os=True, fo=True) 
             cmds.currentTime(1)
             cmds.select(name + 'torusTie')
             if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
@@ -475,6 +496,9 @@ def createCloth():
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
     #hide objects in the scene/visibility
+    if (isCurtain):
+        cmds.setAttr(name + 'clothmesh.visibility', 0)
+        cmds.setAttr(name + 'torusTie.visibility', 0)
     if (isRibbonBow):
         cmds.setAttr(name + 'clothmesh.visibility', 0)
         cmds.setAttr(name + 'ribbon1.visibility', 0)
@@ -486,6 +510,8 @@ def createCloth():
     cmds.select(outMesh)
     if (isRibbonBow):
         cmds.select([outRibbon1, outRibbon2, bowcentercollider], add=True)
+    if (isCurtain):
+        cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
     #get a lighter color for sheen
