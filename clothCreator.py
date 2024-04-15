@@ -66,6 +66,7 @@ cmds.separator(height = 10)
 
 
 tieBack= cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie back curtain ')
+tieBack= cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a curtain rod ')
 cmds.separator(height = 10)
 
 applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
@@ -102,7 +103,8 @@ def createCloth():
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
-    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)    
+    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)   
+    curtainRod = cmds.checkBoxGrp('curtainRod', q = True, v1=True)    
         
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
@@ -495,16 +497,67 @@ def createCloth():
             cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
+        #curtain rod
+        if(curtainRod):
+            rod = cmds.polyCube(w=width+0.4, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
+            cmds.scale(1, 0.5, 0.5, r=True)
+            edgenums = ['.e[18]', '.e[14]', '.e[22]', '.e[26]']
+            edges = []
+            for edge in edgenums:
+                edges.append(f'{name}rod{edge}')
+            cmds.select(edges)
+            cmds.move(1.8, 0, 0, r=True)
+            edgenums = ['.e[17]', '.e[13]', '.e[21]', '.e[25]']
+            edges = []
+            for edge in edgenums:
+                edges.append(f'{name}rod{edge}')
+            cmds.select(edges)
+            cmds.move(-1.8, 0, 0, r=True)
+            cmds.select(name + 'rod')
+            cmds.scale(1, 0.43, 0.4328024, ws=True, r=True) 
+            cmds.move(0, length/2 - 0.3, -0.4, r=True)
+            cmds.select(name + 'rod.f[13]')
+            cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
+            cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
+            cmds.scale(1.35, 1.35, 1.35, cs=True, r=True) 
+            cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.05)
+            cmds.scale(1.35, 1.35, 1.35, cs=True, r=True) 
+            cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.15)
+            cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.11)
+            cmds.scale(0.6, 0.6, 0.6, cs=True, r=True) 
+            cmds.select(name + 'rod.f[12]')
+            cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
+            cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
+            cmds.scale(1.35, 1.35, 1.35, cs=True, r=True) 
+            cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.05)
+            cmds.scale(1.35, 1.35, 1.35, cs=True, r=True) 
+            cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.15)
+            cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.11)
+            cmds.scale(0.6, 0.6, 0.6, cs=True, r=True) 
+            cmds.polySmooth(name + 'rod', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
+
     #hide objects in the scene/visibility
     if (isCurtain):
         cmds.setAttr(name + 'clothmesh.visibility', 0)
-        cmds.setAttr(name + 'torusTie.visibility', 0)
+        cmds.setAttr(name + 'collider.visibility', 0)
+        if (tieBack):
+            cmds.setAttr(name + 'torusTie.visibility', 0)
     if (isRibbonBow):
         cmds.setAttr(name + 'clothmesh.visibility', 0)
         cmds.setAttr(name + 'ribbon1.visibility', 0)
         cmds.setAttr(name + 'ribbon2.visibility', 0)
     
     #material
+    if (isCurtain):
+        shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'rodshader') 
+        cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'rodaiSurfaceShader' + name + 'SG')
+        cmds.select(rod)
+        cmds.hyperShade(assign = 'rodaiSurfaceShader' + name + 'SG')
+        cmds.connectAttr(name + 'rodshader.outColor', 'rodaiSurfaceShader' + name +'SG.surfaceShader', f=True)
+        cmds.setAttr(name + 'rodshader.baseColor', 0.5, 0.5, 0.5, type='double3')
+        cmds.setAttr(name + 'rodshader.metalness', 1)
+        cmds.setAttr(name + 'rodshader.diffuseRoughness', 0.1)
+        
     shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'shader') 
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
