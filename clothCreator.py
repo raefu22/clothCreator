@@ -23,6 +23,24 @@ def showTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
     cmds.floatSliderGrp(tableScale, edit=True, enable=True)
 
+def showCurtainOp(*args):
+    showCheckbox = cmds.checkBoxGrp(isCurtain, q = True, vis = False, v1 = False)
+    cmds.checkBoxGrp(tieBack, edit=True, enable=True)
+    cmds.checkBoxGrp(curtainRod, edit=True, enable=True)
+
+def hideCurtainOp(*args):
+    showCheckbox = cmds.checkBoxGrp(isCurtain, q = True)
+    cmds.checkBoxGrp(tieBack, edit=True, enable=False)
+    cmds.checkBoxGrp(curtainRod, edit=True, enable=False)
+
+def showTieOp(*args):
+    showCheckbox = cmds.checkBoxGrp(tieBack, q = True, vis = False, v1 = False)
+    cmds.checkBoxGrp(tieWithBow, edit=True, enable=True)
+
+def hideTieOp(*args):
+    showCheckbox = cmds.checkBoxGrp(tieBack, q = True)
+    cmds.checkBoxGrp(tieWithBow, edit=True, enable=False)
+
 def showColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True)
     cmds.colorSliderGrp(pickColor, edit=True, enable=True)
@@ -47,7 +65,7 @@ cmds.separator(height = 10)
 nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
 isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
-isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ')
+isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ', onc = showCurtainOp, ofc = hideCurtainOp)
 isRibbonBow = cmds.checkBoxGrp('isRibbonBow', numberOfCheckBoxes=1, label='Is ribbon bow ')
 cmds.separator(height = 10)
 cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
@@ -60,13 +78,15 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 cmds.checkBoxGrp(useTable, edit=True, enable=False)
 cmds.floatSliderGrp(tableScale, edit=True, enable=False)
 
-
-
 cmds.separator(height = 10)
 
+tieBack = cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie Back Curtain ', onc = showTieOp, ofc = hideTieOp)
+tieWithBow = cmds.checkBoxGrp('tieWithBow', numberOfCheckBoxes=1, label='Tie with Bow ')
 
-tieBack= cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie back curtain ')
-tieBack= cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a curtain rod ')
+curtainRod = cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a Curtain Rod ')
+cmds.checkBoxGrp(tieBack, edit=True, enable=False)
+cmds.checkBoxGrp(tieWithBow, edit=True, enable=False)
+cmds.checkBoxGrp(curtainRod, edit=True, enable=False)
 cmds.separator(height = 10)
 
 applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
@@ -82,7 +102,7 @@ cmds.separator(height = 10)
 
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
 cmds.text(label='                                                                                                    ')
-cmds.button(label="Create Cloth", c="createCloth()", p = submitrow)
+cmds.button(label="Create Cloth", c="clothmain()", p = submitrow)
 
 cmds.separator(height = 10, p = maincol)
 rightmar = cmds.columnLayout(p=cols)
@@ -90,10 +110,7 @@ cmds.text('         ', p =rightmar)
 
 cmds.showWindow(window)
 
-def createCloth():
-    inputname = cmds.textFieldGrp(nameparam, query = True, text = True)
-    name = inputname
-    
+def createCloth(name, isCurtainBow):
     isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
     isCurtain = cmds.checkBoxGrp('isCurtain', q = True, v1=True)
     isRibbonBow = cmds.checkBoxGrp('isRibbonBow', q = True, v1=True)
@@ -110,6 +127,10 @@ def createCloth():
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
     funMat = cmds.checkBoxGrp('funMaterial', q = True, v1=True)   
+     
+    if (isCurtainBow):
+        isCurtain = False
+        isRibbonBow = True 
      
     if (isTablecloth):
         useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
@@ -290,8 +311,6 @@ def createCloth():
     elif (width > 15 or length > 20):
         clothSubdivide = 4
     clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
-    
-    
     
     #convert to nCloth
     cmds.createNode('nRigid', name=name + 'nRigid1')
@@ -537,18 +556,17 @@ def createCloth():
             cmds.polySmooth(name + 'rod', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
 
     #hide objects in the scene/visibility
+    cmds.setAttr(name + 'clothmesh.visibility', 0)
     if (isCurtain):
-        cmds.setAttr(name + 'clothmesh.visibility', 0)
         cmds.setAttr(name + 'collider.visibility', 0)
         if (tieBack):
             cmds.setAttr(name + 'torusTie.visibility', 0)
     if (isRibbonBow):
-        cmds.setAttr(name + 'clothmesh.visibility', 0)
         cmds.setAttr(name + 'ribbon1.visibility', 0)
         cmds.setAttr(name + 'ribbon2.visibility', 0)
     
     #material
-    if (isCurtain):
+    if (curtainRod):
         shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'rodshader') 
         cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'rodaiSurfaceShader' + name + 'SG')
         cmds.select(rod)
@@ -752,3 +770,12 @@ def createCloth():
             cmds.setAttr(name + 'aiMixShader3.mode', 1)
             cmds.connectAttr(name + 'aiMixShader2.outColor', name + 'aiMixShader3.shader1')
             cmds.connectAttr(name + 'horizontalLines.outColor', name + 'aiMixShader3.shader2')
+            
+def clothmain():
+    inputname = cmds.textFieldGrp(nameparam, query = True, text = True)
+    name = inputname
+    createCloth(name, False)
+    tieWithBow = cmds.checkBoxGrp('tieWithBow', q = True, v1=True)
+    if (tieWithBow):
+        name = name + 'curtainBow'
+        createCloth(name, True)
