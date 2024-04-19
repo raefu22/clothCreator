@@ -240,21 +240,26 @@ def createCloth(name, isCurtainBow):
         cmds.select(name + 'ribbon1')
         cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
         cmds.move(0, -0.36, 0, r=True)
-
+        bowCenterMesh = cmds.polyTorus(r=width/2+1, sr=1.2, tw=0, sx=20, sy=20, ax=[0, 1, 0], cuv=1, ch=1, n=name + 'bowCenter')
+        cmds.rotate(0,0,-90, r=True, os=True, fo=True)
+        cmds.scale(0.24, 0.06, 0.06, r=True, ws=True)
+        #cmds.scale(1.93, 0, 0, r=True, ws=True)
+        cmds.move(0, 0.27, -0.243, r=True) 
+        
         if (isCurtainBow):
-            cmds.select([name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2'])
+            cmds.select([name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', name + 'bowCenter'])
             
             cmds.move(0, length/2 - length/3 -0.45, 0.8, r=True)
-            bowCenterMesh = cmds.duplicate(name + 'collider', n=name + 'bowCenter')
-            cmds.group( name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', n=name + 'theCurtainBow' )
+            #bowCenterMesh = cmds.duplicate(name + 'collider', n=name + 'bowCenter')
+            cmds.group( name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', name + 'bowCenter', n=name+'theCurtainBow')
             cmds.select(name + 'theCurtainBow')
             cmds.scale(0.5, 0.5, 0.5, relative = True)
             cmds.select(name + 'ribbon1')
             cmds.move(0, 0, 0, r=True)
             cmds.select(name + 'ribbon2')
             cmds.move(0, 0.03, 0, r=True)
-            cmds.select(name + 'bowCenter')
-            cmds.scale(0.6, 1.1, 1.1, r=True)
+            #cmds.select(name + 'bowCenter')
+            #cmds.scale(0.6, 1.1, 1.1, r=True)
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
@@ -410,10 +415,16 @@ def createCloth(name, isCurtainBow):
         mel.eval('createNConstraint pointToSurface 0;')
         
         #squeeze center
-        cmds.currentTime(0)
+        if (isCurtainBow):
+            cmds.currentTime(117)
+        else:
+            cmds.currentTime(0)
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sx', v=1)
-        cmds.currentTime(25)
+        if (isCurtainBow):
+            cmds.currentTime(142)
+        else:
+            cmds.currentTime(25)
         cmds.setKeyframe(name + 'collider', attribute='sx', v=0.6)
         
         #ribbon
@@ -550,7 +561,7 @@ def createCloth(name, isCurtainBow):
             cmds.move(-1.8, 0, 0, r=True)
             cmds.select(name + 'rod')
             cmds.scale(1, 0.43, 0.4328024, ws=True, r=True) 
-            cmds.move(0, length/2 - 0.3, -0.4, r=True)
+            cmds.move(0, length/2 - 0.2, -0.4, r=True)
             cmds.select(name + 'rod.f[13]')
             cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
             cmds.polyExtrudeFacet(name + 'rod.f[13]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.03)
@@ -596,9 +607,9 @@ def createCloth(name, isCurtainBow):
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
     if (isRibbonBow):
-        cmds.select([outRibbon1, outRibbon2, bowcentercollider], add=True)
-        if (isCurtainBow):
-            cmds.select(bowCenterMesh, add=True)
+        cmds.select(outRibbon1, outRibbon2, bowcentercollider, bowCenterMesh, add=True)
+        #if (isCurtainBow):
+            #cmds.select(bowCenterMesh, add=True)
     if (isCurtain):
         cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
