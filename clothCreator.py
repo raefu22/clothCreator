@@ -596,7 +596,9 @@ def createCloth(name, isCurtainBow):
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
     if (isRibbonBow):
-        cmds.select([outRibbon1, outRibbon2, bowcentercollider, bowCenterMesh], add=True)
+        cmds.select([outRibbon1, outRibbon2, bowcentercollider], add=True)
+        if (isCurtainBow):
+            cmds.select(bowCenterMesh, add=True)
     if (isCurtain):
         cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
