@@ -130,7 +130,8 @@ def createCloth(name, isCurtainBow):
      
     if (isCurtainBow):
         isCurtain = False
-        isRibbonBow = True 
+        isRibbonBow = True
+        curtainRod = False
      
     if (isTablecloth):
         useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
@@ -240,7 +241,20 @@ def createCloth(name, isCurtainBow):
         cmds.rotate(35.685583, 0, 0, r=True, os=True, fo=True)
         cmds.move(0, -0.36, 0, r=True)
 
-        
+        if (isCurtainBow):
+            cmds.select([name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2'])
+            
+            cmds.move(0, length/2 - length/3 -0.45, 0.8, r=True)
+            bowCenterMesh = cmds.duplicate(name + 'collider', n=name + 'bowCenter')
+            cmds.group( name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', n=name + 'theCurtainBow' )
+            cmds.select(name + 'theCurtainBow')
+            cmds.scale(0.5, 0.5, 0.5, relative = True)
+            cmds.select(name + 'ribbon1')
+            cmds.move(0, 0, 0, r=True)
+            cmds.select(name + 'ribbon2')
+            cmds.move(0, 0.03, 0, r=True)
+            cmds.select(name + 'bowCenter')
+            cmds.scale(0.6, 1.1, 1.1, r=True)
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
@@ -446,7 +460,9 @@ def createCloth(name, isCurtainBow):
         cmds.setAttr(name + 'nCloth2.pointMass', 0.61)
         cmds.setAttr(name + 'nCloth3.pointMass', 0.61)
         
-        
+        if (isCurtainBow):
+            cmds.setAttr(name + 'nucleus1.startFrame', 117)
+       
     #curtain folds
     if (isCurtain):
         cmds.currentTime(10)
@@ -580,7 +596,7 @@ def createCloth(name, isCurtainBow):
     cmds.sets(renderable=True, noSurfaceShader= True, empty=True, n= 'aiSurfaceShader' + name + 'SG')
     cmds.select(outMesh)
     if (isRibbonBow):
-        cmds.select([outRibbon1, outRibbon2, bowcentercollider], add=True)
+        cmds.select([outRibbon1, outRibbon2, bowcentercollider, bowCenterMesh], add=True)
     if (isCurtain):
         cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
