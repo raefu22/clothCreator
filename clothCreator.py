@@ -177,6 +177,7 @@ def createCloth(name, isCurtainBow):
         for edge in edgenums:
             edges.append(f'{name}bow{edge}')
         cmds.select(edges)
+        cmds.softSelect(sse = 0)
         cmds.move(0, -0.8, 0, r=True)
         edgenums = ['.e[1]', '.e[1]', '.e[21]', '.e[41]', '.e[61]']
         edges = []
