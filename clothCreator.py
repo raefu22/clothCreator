@@ -6,30 +6,29 @@ import colorsys
 
 #UI window
 def showTableclothOp(*args):
-    showCheckbox = cmds.checkBoxGrp(isTablecloth, q = True, vis = False, v1 = False)
     cmds.checkBoxGrp(useTable, edit=True, enable=True)
     cmds.floatSliderGrp(tableScale, edit=True, enable=True)
+    cmds.radioButtonGrp(clothShape, edit=True, enable=True)
 
 def hideTableclothOp(*args):
-    showCheckbox = cmds.checkBoxGrp(isTablecloth, q = True)
     cmds.checkBoxGrp(useTable, edit=True, enable=False)
     cmds.floatSliderGrp(tableScale, edit=True, enable=False)
+    cmds.radioButtonGrp(clothShape, edit=True, enable=False)
 
 def hideTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True)
     cmds.floatSliderGrp(tableScale, edit=True, enable=False)
+    
    
 def showTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
     cmds.floatSliderGrp(tableScale, edit=True, enable=True)
 
 def showCurtainOp(*args):
-    showCheckbox = cmds.checkBoxGrp(isCurtain, q = True, vis = False, v1 = False)
     cmds.checkBoxGrp(tieBack, edit=True, enable=True)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=True)
 
 def hideCurtainOp(*args):
-    showCheckbox = cmds.checkBoxGrp(isCurtain, q = True)
     cmds.checkBoxGrp(tieBack, edit=True, enable=False)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=False)
 
@@ -50,6 +49,42 @@ def hideColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True, vis = False, v1 = False)
     cmds.colorSliderGrp(pickColor, edit=True, enable=False)
     cmds.radioButtonGrp(materialType, edit=True, enable=False)
+    
+def showRibbonOp(*args):
+    cmds.floatSliderGrp(clothwidth, edit=True, enable=False)
+    cmds.floatSliderGrp(clothlength, edit=True, enable=False)
+    
+def hideRibbonOp(*args):
+    cmds.floatSliderGrp(clothwidth, edit=True, enable=True)
+    cmds.floatSliderGrp(clothlength, edit=True, enable=True)
+    
+def showRegularOp(*args):
+    cmds.checkBoxGrp(useFolds, edit=True, enable=True)
+
+def hideRegularOp(*args):
+    cmds.checkBoxGrp(useFolds, edit=True, enable=False)
+    
+def typeChange(item, *args):
+    if (item =='Tablecloth'):
+        showTableclothOp()
+        hideCurtainOp()
+        hideRibbonOp()
+        hideRegularOp()
+    elif (item == 'Curtain'):
+        hideTableclothOp()
+        showCurtainOp()
+        hideRibbonOp()
+        hideRegularOp()
+    elif (item == 'Ribbon Bow'):
+        hideTableclothOp()
+        hideCurtainOp()
+        showRibbonOp()
+        hideRegularOp()
+    elif (item == 'Regular'):
+        hideTableclothOp()
+        hideCurtainOp()
+        hideRibbonOp()
+        showRegularOp()
 
 window = cmds.window(title='Cloth Creator', menuBar = True, width=250)
 container = cmds.columnLayout()
@@ -64,22 +99,23 @@ cmds.text('            ')
 cmds.separator(height = 10)
 nameparam = cmds.textFieldGrp(label = 'Name ')
 cmds.separator(height = 10)
-cmds.text('Select one of the following:')
-isTablecloth = cmds.checkBoxGrp('isTablecloth', numberOfCheckBoxes=1, label='Is tablecloth ', onc = showTableclothOp, ofc = hideTableclothOp)
-isCurtain = cmds.checkBoxGrp('isCurtain', numberOfCheckBoxes=1, label='Is curtain ', onc = showCurtainOp, ofc = hideCurtainOp)
-isRibbonBow = cmds.checkBoxGrp('isRibbonBow', numberOfCheckBoxes=1, label='Is ribbon bow ')
+clothType = cmds.optionMenuGrp('clothType', label='Type of Cloth ', cc=typeChange)
+cmds.menuItem(label = 'Tablecloth')
+cmds.menuItem(label = 'Curtain')
+cmds.menuItem(label = 'Ribbon Bow')
+cmds.menuItem(label = 'Regular')
+
 cmds.separator(height = 10)
-cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
-cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
-cmds.floatSliderGrp('length', label='Length ', field = True, min = 1, max = 40, v = 5)
+clothShape = cmds.radioButtonGrp('clothShape', label='Cloth Shape ', labelArray2=['Elliptic', 'Rectangular'], numberOfRadioButtons=2)
+clothwidth = cmds.floatSliderGrp('width', label='Width ', field = True, min = 1, max = 40, v = 5)
+clothlength = cmds.floatSliderGrp('length', label='Length ', field = True, min = 1, max = 40, v = 5)
 
 cmds.separator(height = 10)
 useFolds = cmds.checkBoxGrp('useFolds', numberOfCheckBoxes=1, label='Use Selected as Fold(s) ')
+cmds.checkBoxGrp(useFolds, edit=True, enable=False)
 cmds.separator(height = 10)
 useTable = cmds.checkBoxGrp('useTable', numberOfCheckBoxes=1, label='Use Selected as Table ', onc = hideTableOp, ofc = showTableOp)
 tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = True, min = 1, max = 40, v = 3)
-cmds.checkBoxGrp(useTable, edit=True, enable=False)
-cmds.floatSliderGrp(tableScale, edit=True, enable=False)
 
 cmds.separator(height = 10)
 
@@ -114,9 +150,17 @@ cmds.text('         ', p =rightmar)
 cmds.showWindow(window)
 
 def createCloth(name, isCurtainBow):
-    isTablecloth = cmds.checkBoxGrp('isTablecloth', q = True, v1=True)
-    isCurtain = cmds.checkBoxGrp('isCurtain', q = True, v1=True)
-    isRibbonBow = cmds.checkBoxGrp('isRibbonBow', q = True, v1=True)
+    clothType = cmds.optionMenuGrp('clothType', q = True, v = True)
+    isTablecloth = False
+    isCurtain = False
+    isRibbonBow = False
+    if (clothType == 'Tablecloth'):
+        isTablecloth = True
+    elif (clothType == 'Curtain'):
+        isCurtain = True
+    elif (clothType == 'Ribbon Bow'):
+        isRibbonBow = True
+        
     clothShape = cmds.radioButtonGrp('clothShape', q = True, sl = True)
     width = cmds.floatSliderGrp('width', q = True, v = True)
     length = cmds.floatSliderGrp('length', q = True, v = True)
@@ -216,17 +260,13 @@ def createCloth(name, isCurtainBow):
         cmds.select(edges)
         cmds.scale(1, 1, 1.095652, ws=True, r=True, ocp=True)        
         cmds.polyPlane(w=1, h=1, sx=5, sy=10, ax=[0, 1, 0], cuv=2, ch=1, n=name + 'ribbon1')
-        
-        #cmds.scale(0.473491, 1, 1, ws=True, r=True)
         cmds.select(name + 'bow', name + 'bowcenter')
         cmds.move(0, 0.667064, 0, r=True) 
         cmds.rotate(90, 0, 0, r=True)
-        #cmds.move(0, 0, -0.76, name + 'bow.scalePivot', name + 'bow.rotatePivot', r=True)
         cmds.select(name + 'bow')
         cmds.move(0, -0.35, 0.428669, r=True)
         cmds.rename(name + 'bow', name + 'clothmesh')
         bowcentercollider = cmds.rename(name + 'bowcenter', name + 'collider')
-        #cmds.move(0, -0.35, 0.428669, r=True)
         cmds.select(name + 'ribbon1')
         cmds.scale(0.258665, 1, 1.733546, ws=True, r=True)
         cmds.scale(0.5, 1, 1, ws=True, r=True)
@@ -247,14 +287,12 @@ def createCloth(name, isCurtainBow):
         bowCenterMesh = cmds.polyTorus(r=width/2+1, sr=1.2, tw=0, sx=20, sy=20, ax=[0, 1, 0], cuv=1, ch=1, n=name + 'bowCenter')
         cmds.rotate(0,0,-90, r=True, os=True, fo=True)
         cmds.scale(0.24, 0.06, 0.06, r=True, ws=True)
-        #cmds.scale(1.93, 0, 0, r=True, ws=True)
         cmds.move(0, 0.27, -0.243, r=True) 
         
         if (isCurtainBow):
             cmds.select([name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', name + 'bowCenter'])
             
             cmds.move(0, length/2 - length/3 -0.25, 0.8, r=True)
-            #bowCenterMesh = cmds.duplicate(name + 'collider', n=name + 'bowCenter')
             cmds.group( name + 'clothmesh', name + 'collider', name + 'ribbon1', name + 'ribbon2', name + 'bowCenter', n=name+'theCurtainBow')
             cmds.select(name + 'theCurtainBow')
             cmds.scale(0.5, 0.5, 0.5, relative = True)
@@ -262,12 +300,12 @@ def createCloth(name, isCurtainBow):
             cmds.move(0, 0, 0, r=True)
             cmds.select(name + 'ribbon2')
             cmds.move(0, 0.03, 0, r=True)
-            #cmds.select(name + 'bowCenter')
-            #cmds.scale(0.6, 1.1, 1.1, r=True)
+      
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
             mergeList = []
+            print('in folds if')
             for curveNum in range(len(curveObj)):
                 curveName = curveObj[curveNum]
                 cmds.select(curveName)
@@ -486,7 +524,6 @@ def createCloth(name, isCurtainBow):
         cmds.currentTime(20)
         cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
         vtxnums = []
-        #if (clothSubdivide == 2):
         vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
         '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
         '.vtx[527:528]', '.vtx[569:570]', '.vtx[611:612]', '.vtx[653:654]', '.vtx[695:696]', '.vtx[737:738]', '.vtx[779:780]', '.vtx[821:822]', '.vtx[1685:1688]', 
@@ -612,8 +649,7 @@ def createCloth(name, isCurtainBow):
     cmds.select(outMesh)
     if (isRibbonBow):
         cmds.select(outRibbon1, outRibbon2, bowcentercollider, bowCenterMesh, add=True)
-        #if (isCurtainBow):
-            #cmds.select(bowCenterMesh, add=True)
+        
     if (isCurtain):
         cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
