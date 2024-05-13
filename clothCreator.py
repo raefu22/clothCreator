@@ -3,6 +3,7 @@ import random
 import math
 import maya.mel as mel
 import colorsys
+import time
 
 #UI window
 def showTableclothOp(*args):
@@ -515,7 +516,17 @@ def createCloth(name, isCurtainBow):
         
         if (isCurtainBow):
             cmds.setAttr(name + 'nucleus1.startFrame', 117)
-       
+            '''
+            #cmds.select(outRibbon1, outRibbon2, outMesh)
+            
+            cmds.dgdirty(allPlugs=True)
+            cmds.refresh(force=True)
+            cmds.currentTime(131)
+            cmds.delete(outRibbon1, constructionHistory = True)
+            cmds.delete(outRibbon2, constructionHistory = True)
+            cmds.delete(outMesh, constructionHistory = True)
+            cmds.currentTime(0)
+            '''
     #curtain folds
     if (isCurtain):
         cmds.currentTime(10)
@@ -632,6 +643,7 @@ def createCloth(name, isCurtainBow):
     if (isRibbonBow):
         cmds.setAttr(name + 'ribbon1.visibility', 0)
         cmds.setAttr(name + 'ribbon2.visibility', 0)
+        cmds.setAttr(name + 'collider.visibility', 0)
     
     #material
     if (curtainRod):
@@ -843,8 +855,8 @@ def createCloth(name, isCurtainBow):
 def clothmain():
     inputname = cmds.textFieldGrp(nameparam, query = True, text = True)
     name = inputname
-    createCloth(name, False)
     tieWithBow = cmds.checkBoxGrp('tieWithBow', q = True, v1=True)
     if (tieWithBow):
-        name = name + 'curtainBow'
-        createCloth(name, True)
+        newname = name + 'curtainBow'
+        createCloth(newname, True)
+    createCloth(name, False)
