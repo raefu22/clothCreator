@@ -121,6 +121,7 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 cmds.separator(height = 10)
 
 tieBack = cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie Back Curtain ', onc = showTieOp, ofc = hideTieOp)
+tieToSide = cmds.checkBoxGrp('tieToSide', numberOfCheckBoxes=1, label='Tie to Side ')
 tieWithBow = cmds.checkBoxGrp('tieWithBow', numberOfCheckBoxes=1, label='Tie with Bow ')
 
 curtainRod = cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a Curtain Rod ')
@@ -168,7 +169,8 @@ def createCloth(name, isCurtainBow):
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
-    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)   
+    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)
+    tieToSide = cmds.checkBoxGrp('tieToSide', q = True, v1=True)   
     curtainRod = cmds.checkBoxGrp('curtainRod', q = True, v1=True)    
         
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
@@ -534,6 +536,14 @@ def createCloth(name, isCurtainBow):
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
         cmds.currentTime(20)
         cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
+        if (tieToSide == True):
+            cmds.currentTime(120)
+            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
+            cmds.currentTime(125)
+            cmds.move(-0.4, 0, 0, r=True, ls=True, wd=True)
+            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
+            #find node
+            cmds.setAttr "dynamicConstraintShape1.connectionUpdate" 1;
         vtxnums = []
         vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
         '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
@@ -559,6 +569,10 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'flatTie.sy')
             if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'flatTie.sz')
+            if (tieToSide == True):
+                cmds.currentTime(85)
+                if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'flatTie.tx')
             cmds.currentTime(117)
             cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
             if(cmds.getAttr(name + 'flatTie.sx', k=True) or cmds.getAttr(name + 'flatTie.sx', cb = True)):
@@ -567,6 +581,11 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'flatTie.sy')
             if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'flatTie.sz')
+            if (tieToSide == True):
+                cmds.currentTime(125)
+                cmds.move(-1.028277, 0, 0, r=True, ls=True, wd=True)
+                if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'flatTie.tx')
             cmds.polySmooth(name + 'flatTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.select(name + 'torusTie')
             cmds.move(0, length/2 - length/3, 0) 
@@ -579,6 +598,10 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'torusTie.sy')
             if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'torusTie.sz')
+            if (tieToSide == True):
+                cmds.currentTime(85)
+                if(cmds.getAttr(name + 'torusTie.tx', k=True) or cmds.getAttr(name + 'torusTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'torusTie.tx')
             cmds.currentTime(117)
             cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
             if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
@@ -587,6 +610,11 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'torusTie.sy')
             if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'torusTie.sz')
+            if (tieToSide == True):
+                cmds.currentTime(125)
+                cmds.move(-1.028277, 0, 0, r=True, ls=True, wd=True)
+                if(cmds.getAttr(name + 'torusTie.tx', k=True) or cmds.getAttr(name + 'torusTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'torusTie.tx')
             cmds.polySmooth(name + 'torusTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.createNode('nRigid', name=name + 'torusTienRigid')
             cmds.connectAttr(name + 'torusTie' + 'Shape.worldMesh[0]', name + 'torusTienRigid.inputMesh')
