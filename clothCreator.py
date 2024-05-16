@@ -542,8 +542,7 @@ def createCloth(name, isCurtainBow):
             cmds.currentTime(125)
             cmds.move(-0.4, 0, 0, r=True, ls=True, wd=True)
             cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
-            #find node
-            cmds.setAttr "dynamicConstraintShape1.connectionUpdate" 1;
+            
         vtxnums = []
         vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
         '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
@@ -555,7 +554,10 @@ def createCloth(name, isCurtainBow):
             vtxs.append(f'{name}clothmesh{vtx}')
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
-        mel.eval('createNConstraint pointToSurface 0;')
+        constraint1Name = mel.eval('createNConstraint pointToSurface 0;')
+        if (tieToSide == True):
+            cmds.setAttr(constraint1Name[0] + '.connectionUpdate', 1)
+            cmds.setAttr(name + 'nucleus1.maxCollisionIterations', 9)
         if (tieBack):
             cmds.polyTorus(r=width/2+1, sr=0.1, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
             clothliketie = cmds.polyPipe(r=width/2+1, h=2, t=0.1, sa=20, sh=1, sc=4, ax=[0, 1, 0], cuv=1, rcp=0, ch=1, n= name + 'flatTie')
