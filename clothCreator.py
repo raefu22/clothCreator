@@ -710,6 +710,15 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.setAttr(name + 'ribbon2.visibility', 0)
         cmds.setAttr(name + 'collider.visibility', 0)
     
+    #if panel pair curtain -> group
+    if 'pair' in typeOfCurtain:
+        cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain1')
+        cmds.select(name + 'panelcurtain1')
+        if 'pair1' in typeOfCurtain:
+            cmds.move(-width, 0, 0, r=True, os=True, wd=True) 
+        elif 'pair2' in typeOfCurtain:
+            cmds.move(width, 0, 0, r=True, os=True, wd=True) 
+    
     #material
     if (curtainRod):
         shader = cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'rodshader') 
@@ -939,10 +948,14 @@ def clothmain():
         elif (curtainType == 'Panel Pair'):
             pairTieLocation = cmds.optionMenuGrp('pairTieLocation', q = True, v = True)
             if (pairTieLocation == 'Center'):
-                createCloth(name, False, 'pair1center')
-                createCloth(name, False, 'pair2center')
+                newname = name + '1'
+                createCloth(newname, False, 'pair1center')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2center')
             else:
-                createCloth(name, False, 'pair1left')
-                createCloth(name, False, 'pair2right')
+                newname = name + '1'
+                createCloth(newname, False, 'pair1left')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2right')
     else:
         createCloth(name, False, 'thing')
