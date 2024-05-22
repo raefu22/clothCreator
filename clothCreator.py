@@ -213,7 +213,10 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
     elif (isCurtain):
         div = width * 4
         cmds.polyCylinder( r=0.15, h=width + 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
+        
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
+        if ('right' in typeOfCurtain):
+            cmds.rotate(180, 0, 0, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
     elif (isRibbonBow):
@@ -718,6 +721,9 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.move(-width, 0, 0, r=True, os=True, wd=True) 
         elif 'pair2' in typeOfCurtain:
             cmds.move(width, 0, 0, r=True, os=True, wd=True) 
+            
+        #prevent curtain cutting through other colliders    
+        cmds.setAttr(name + 'nRigid1.trappedCheck', 1)
     
     #material
     if (curtainRod):
