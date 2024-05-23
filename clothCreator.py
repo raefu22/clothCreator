@@ -19,7 +19,6 @@ def hideTableclothOp(*args):
 def hideTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True)
     cmds.floatSliderGrp(tableScale, edit=True, enable=False)
-    
    
 def showTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
@@ -28,18 +27,27 @@ def showTableOp(*args):
 def showCurtainOp(*args):
     cmds.checkBoxGrp(tieBack, edit=True, enable=True)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=True)
+    cmds.optionMenuGrp(curtainType, edit=True, enable = True)
 
 def hideCurtainOp(*args):
     cmds.checkBoxGrp(tieBack, edit=True, enable=False)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=False)
+    cmds.optionMenuGrp(curtainType, edit=True, enable = False)
 
 def showTieOp(*args):
     showCheckbox = cmds.checkBoxGrp(tieBack, q = True, vis = False, v1 = False)
     cmds.checkBoxGrp(tieWithBow, edit=True, enable=True)
+    curtainCurr = cmds.optionMenuGrp('curtainType', q = True, v = True)
+    if curtainCurr == 'Single Panel':
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = True)
+    else:
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = True)
 
 def hideTieOp(*args):
     showCheckbox = cmds.checkBoxGrp(tieBack, q = True)
     cmds.checkBoxGrp(tieWithBow, edit=True, enable=False)
+    cmds.optionMenuGrp(singleTieLocation, edit=True, enable = False)
+    cmds.optionMenuGrp(pairTieLocation, edit=True, enable = False)
 
 def showColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True)
@@ -65,6 +73,14 @@ def showRegularOp(*args):
 def hideRegularOp(*args):
     cmds.checkBoxGrp(useFolds, edit=True, enable=False)
     
+def curtainTypeChange(item, *args):
+    tieCurr = cmds.checkBoxGrp('tieBack', q = True, v1 = True)
+    if (item =='Single Panel' and tieCurr):
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = True)
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = False)
+    elif tieCurr:
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = False)
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = True)
 def typeChange(item, *args):
     if (item =='Tablecloth'):
         showTableclothOp()
@@ -120,19 +136,22 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 
 cmds.separator(height = 10)
 
-curtainType = cmds.optionMenuGrp('curtainType', label='Curtain Type ')
+curtainType = cmds.optionMenuGrp('curtainType', label='Curtain Type ', cc = curtainTypeChange)
 cmds.menuItem(label = 'Single Panel')
 cmds.menuItem(label = 'Panel Pair')
 cmds.menuItem(label = 'Complete Set')
+cmds.optionMenuGrp(curtainType, edit=True, enable=False)
 
 tieBack = cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie Back Curtain ', onc = showTieOp, ofc = hideTieOp)
-singleTieLocation = cmds.optionMenuGrp('singleTieLocation', label='Single Curtain Tie Location ', cc=typeChange)
+singleTieLocation = cmds.optionMenuGrp('singleTieLocation', label='Single Curtain Tie Location ')
 cmds.menuItem(label = 'Center')
 cmds.menuItem(label = 'Left')
 cmds.menuItem(label = 'Right')
-pairTieLocation = cmds.optionMenuGrp('pairTieLocation', label='Pair Curtains Tie Location ', cc=typeChange)
+pairTieLocation = cmds.optionMenuGrp('pairTieLocation', label='Pair Curtains Tie Location ')
 cmds.menuItem(label = 'Center')
 cmds.menuItem(label = 'Side')
+cmds.optionMenuGrp(singleTieLocation, edit=True, enable=False)
+cmds.optionMenuGrp(pairTieLocation, edit=True, enable=False)
 
 tieWithBow = cmds.checkBoxGrp('tieWithBow', numberOfCheckBoxes=1, label='Tie with Bow ')
 
@@ -183,7 +202,8 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         
     tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)
     curtainRod = cmds.checkBoxGrp('curtainRod', q = True, v1=True)    
-        
+    if ('pair2' in typeOfCurtain):
+        curtainRod = False    
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
