@@ -134,8 +134,6 @@ pairTieLocation = cmds.optionMenuGrp('pairTieLocation', label='Pair Curtains Tie
 cmds.menuItem(label = 'Center')
 cmds.menuItem(label = 'Side')
 
-
-tieToSide = cmds.checkBoxGrp('tieToSide', numberOfCheckBoxes=1, label='Tie to Side ')
 tieWithBow = cmds.checkBoxGrp('tieWithBow', numberOfCheckBoxes=1, label='Tie with Bow ')
 
 curtainRod = cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a Curtain Rod ')
@@ -184,7 +182,6 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
     tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)
-    tieToSide = cmds.checkBoxGrp('tieToSide', q = True, v1=True)   
     curtainRod = cmds.checkBoxGrp('curtainRod', q = True, v1=True)    
         
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
@@ -665,7 +662,15 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
         #curtain rod
         if(curtainRod):
-            rod = cmds.polyCube(w=width+0.4, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
+            rodWidth = width + 0.4
+            if 'single' in typeOfCurtain:
+                rodWidth = width/3 * 2 - 0.2
+            elif 'pair' in typeOfCurtain:
+                if 'left' in typeOfCurtain:
+                    rodWidth = width * 2 + 0.4
+                else:
+                    rodWith = width * 2
+            rod = cmds.polyCube(w=rodWidth, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
             cmds.scale(1, 0.5, 0.5, r=True)
             edgenums = ['.e[18]', '.e[14]', '.e[22]', '.e[26]']
             edges = []
@@ -712,15 +717,25 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.setAttr(name + 'ribbon1.visibility', 0)
         cmds.setAttr(name + 'ribbon2.visibility', 0)
         cmds.setAttr(name + 'collider.visibility', 0)
+    cmds.setAttr(name + 'nCloth1.collisionLayer', 1)
     
     #if panel pair curtain -> group
     if 'pair' in typeOfCurtain:
-        cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain1')
+        if tieBack:
+            cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain1')
+        else:
+            cmds.group(name + 'collider', name + 'clothmesh', outMesh, n = name + 'panelcurtain1')
         cmds.select(name + 'panelcurtain1')
         if 'pair1' in typeOfCurtain:
-            cmds.move(-width, 0, 0, r=True, os=True, wd=True) 
+            if 'left' in typeOfCurtain:
+                cmds.move(-width/3 - 0.2, 0, 0, r=True, os=True, wd=True) 
+            else:
+                cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
         elif 'pair2' in typeOfCurtain:
-            cmds.move(width, 0, 0, r=True, os=True, wd=True) 
+            if 'right' in typeOfCurtain:
+                cmds.move(width/3 + 0.2, 0, 0, r=True, os=True, wd=True)
+            else:
+                cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True) 
             
         #prevent curtain cutting through other colliders    
         cmds.setAttr(name + 'nRigid1.trappedCheck', 1)
@@ -964,4 +979,4 @@ def clothmain():
                 newname = name + '2'
                 createCloth(newname, False, 'pair2right')
     else:
-        createCloth(name, False, 'thing')
+        createCloth(name, False, 'n/a')
