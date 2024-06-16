@@ -208,6 +208,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         tieBack = False    
         width = width * 2.25
         length = length/6
+        curtainRod = False
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
@@ -762,7 +763,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True) 
     elif 'top' in typeOfCurtain:
         cmds.move(0, 0, 1, r=True, os=True, wd=True) 
-        cmds.move(0, length*2, 0, r=True, os=True, wd=True) 
+        cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
     
     #prevent curtain cutting through other colliders    
     cmds.setAttr(name + 'nRigid1.trappedCheck', 1)
@@ -1019,5 +1020,7 @@ def clothmain():
                 createCloth(newname, False, 'pair1left')
                 newname = name + '2'
                 createCloth(newname, False, 'pair2right')
+                newname = name + 'top'
+                createCloth(newname, False, 'singletop')
     else:
         createCloth(name, False, 'n/a')
