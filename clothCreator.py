@@ -214,6 +214,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
     funMat = cmds.checkBoxGrp('funMaterial', q = True, v1=True)   
      
+    #creates cloth assets 
     if (isCurtainBow):
         isCurtain = False
         isRibbonBow = True
@@ -573,8 +574,12 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.currentTime(10)
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
-        cmds.currentTime(20)
-        cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
+        if ('top' in typeOfCurtain):
+            cmds.currentTime(30)
+            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
+        else:
+            cmds.currentTime(20)
+            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
         '''
         if 'left' in typeOfCurtain:
             cmds.currentTime(120)
