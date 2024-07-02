@@ -697,7 +697,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                 rodWidth = width/3 * 2 - 0.2
             elif 'pair' in typeOfCurtain:
                 if 'left' in typeOfCurtain:
-                    rodWidth = width * 2 + 0.4
+                    rodWidth = width * 2
                 else:
                     rodWith = width * 2
             rod = cmds.polyCube(w=rodWidth, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
@@ -736,7 +736,15 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.11)
             cmds.scale(0.6, 0.6, 0.6, cs=True, r=True) 
             cmds.polySmooth(name + 'rod', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
-
+           
+            if rodWidth < 5:
+                edgenums = ['.e[216]', '.e[219]', '.e[224]', '.e[227:228]', '.e[231]', '.e[236]', '.e[239:240]', '.e[243]', '.e[248]', '.e[251:252]', '.e[255]', '.e[260]', '.e[263]']
+                edges = []
+                for edge in edgenums:
+                    edges.append(f'{name}rod{edge}')
+                cmds.select(edges)
+                cmds.polyDelEdge(cv=True, ch=1)
+          
     #hide objects in the scene/visibility
     cmds.setAttr(name + 'clothmesh.visibility', 0)
     if (isCurtain):
