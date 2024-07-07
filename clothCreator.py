@@ -575,7 +575,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
         if ('top' in typeOfCurtain):
-            cmds.currentTime(30)
+            cmds.currentTime(90)
             cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
         else:
             cmds.currentTime(20)
@@ -690,6 +690,8 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
+        if ('top' in typeOfCurtain):
+             cmds.setAttr(constraint1Name[0] + '.connectionUpdate', 0)
         #curtain rod
         if(curtainRod):
             rodWidth = width + 0.4
@@ -697,7 +699,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                 rodWidth = width/3 * 2 - 0.2
             elif 'pair' in typeOfCurtain:
                 if 'left' in typeOfCurtain:
-                    rodWidth = width * 2
+                    rodWidth = width/2 * 3
                 else:
                     rodWith = width * 2
             rod = cmds.polyCube(w=rodWidth, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
@@ -766,14 +768,14 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
     cmds.select(name + 'panelcurtain')
     if 'pair1' in typeOfCurtain:
         if 'left' in typeOfCurtain:
-            cmds.move(-width/3 - 0.2, 0, 0, r=True, os=True, wd=True) 
-        else:
             cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
+        else:
+            cmds.move(-width/4, 0, 0, r=True, os=True, wd=True) 
     elif 'pair2' in typeOfCurtain:
         if 'right' in typeOfCurtain:
-            cmds.move(width/3 + 0.2, 0, 0, r=True, os=True, wd=True)
+            cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
         else:
-            cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True) 
+            cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
     elif 'top' in typeOfCurtain:
         cmds.move(0, 0, 1, r=True, os=True, wd=True) 
         cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
