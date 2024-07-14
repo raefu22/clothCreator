@@ -764,26 +764,27 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.setAttr(name + 'collider.visibility', 0)
     cmds.setAttr(name + 'nCloth1.collisionLayer', 1)
     
+    if (isCurtain):
     #if panel pair curtain -> group
     #if 'pair' in typeOfCurtain:
-    if tieBack:
-        cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain')
-    else:
-        cmds.group(name + 'collider', name + 'clothmesh', outMesh, n = name + 'panelcurtain')
-    cmds.select(name + 'panelcurtain')
-    if 'pair1' in typeOfCurtain:
-        if 'left' in typeOfCurtain:
-            cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
+        if tieBack:
+            cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain')
         else:
-            cmds.move(-width/4, 0, 0, r=True, os=True, wd=True) 
-    elif 'pair2' in typeOfCurtain:
-        if 'right' in typeOfCurtain:
-            cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
-        else:
-            cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
-    elif 'top' in typeOfCurtain:
-        cmds.move(0, 0, 1*width/11.25, r=True, os=True, wd=True) 
-        cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
+            cmds.group(name + 'collider', name + 'clothmesh', outMesh, n = name + 'panelcurtain')
+        cmds.select(name + 'panelcurtain')
+        if 'pair1' in typeOfCurtain:
+            if 'left' in typeOfCurtain:
+                cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
+            else:
+                cmds.move(-width/4, 0, 0, r=True, os=True, wd=True) 
+        elif 'pair2' in typeOfCurtain:
+            if 'right' in typeOfCurtain:
+                cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
+            else:
+                cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
+        elif 'top' in typeOfCurtain:
+            cmds.move(0, 0, 1*width/11.25, r=True, os=True, wd=True) 
+            cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
     
     #prevent curtain cutting through other colliders    
     cmds.setAttr(name + 'nRigid1.trappedCheck', 1)
