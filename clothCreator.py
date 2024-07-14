@@ -19,7 +19,6 @@ def hideTableclothOp(*args):
 def hideTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True)
     cmds.floatSliderGrp(tableScale, edit=True, enable=False)
-    
    
 def showTableOp(*args):
     showCheckbox = cmds.checkBoxGrp(useTable, q = True, vis = False, v1 = False)
@@ -28,18 +27,27 @@ def showTableOp(*args):
 def showCurtainOp(*args):
     cmds.checkBoxGrp(tieBack, edit=True, enable=True)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=True)
+    cmds.optionMenuGrp(curtainType, edit=True, enable = True)
 
 def hideCurtainOp(*args):
     cmds.checkBoxGrp(tieBack, edit=True, enable=False)
     cmds.checkBoxGrp(curtainRod, edit=True, enable=False)
+    cmds.optionMenuGrp(curtainType, edit=True, enable = False)
 
 def showTieOp(*args):
     showCheckbox = cmds.checkBoxGrp(tieBack, q = True, vis = False, v1 = False)
     cmds.checkBoxGrp(tieWithBow, edit=True, enable=True)
+    curtainCurr = cmds.optionMenuGrp('curtainType', q = True, v = True)
+    if curtainCurr == 'Single Panel':
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = True)
+    else:
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = True)
 
 def hideTieOp(*args):
     showCheckbox = cmds.checkBoxGrp(tieBack, q = True)
     cmds.checkBoxGrp(tieWithBow, edit=True, enable=False)
+    cmds.optionMenuGrp(singleTieLocation, edit=True, enable = False)
+    cmds.optionMenuGrp(pairTieLocation, edit=True, enable = False)
 
 def showColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True)
@@ -65,6 +73,14 @@ def showRegularOp(*args):
 def hideRegularOp(*args):
     cmds.checkBoxGrp(useFolds, edit=True, enable=False)
     
+def curtainTypeChange(item, *args):
+    tieCurr = cmds.checkBoxGrp('tieBack', q = True, v1 = True)
+    if (item =='Single Panel' and tieCurr):
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = True)
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = False)
+    elif tieCurr:
+        cmds.optionMenuGrp(singleTieLocation, edit=True, enable = False)
+        cmds.optionMenuGrp(pairTieLocation, edit=True, enable = True)
 def typeChange(item, *args):
     if (item =='Tablecloth'):
         showTableclothOp()
@@ -120,7 +136,23 @@ tableScale = cmds.floatSliderGrp('tableScale', label='Table Scale ', field = Tru
 
 cmds.separator(height = 10)
 
+curtainType = cmds.optionMenuGrp('curtainType', label='Curtain Type ', cc = curtainTypeChange)
+cmds.menuItem(label = 'Single Panel')
+cmds.menuItem(label = 'Panel Pair')
+cmds.menuItem(label = 'Complete Set')
+cmds.optionMenuGrp(curtainType, edit=True, enable=False)
+
 tieBack = cmds.checkBoxGrp('tieBack', numberOfCheckBoxes=1, label='Tie Back Curtain ', onc = showTieOp, ofc = hideTieOp)
+singleTieLocation = cmds.optionMenuGrp('singleTieLocation', label='Single Curtain Tie Location ')
+cmds.menuItem(label = 'Center')
+cmds.menuItem(label = 'Left')
+cmds.menuItem(label = 'Right')
+pairTieLocation = cmds.optionMenuGrp('pairTieLocation', label='Pair Curtains Tie Location ')
+cmds.menuItem(label = 'Center')
+cmds.menuItem(label = 'Side')
+cmds.optionMenuGrp(singleTieLocation, edit=True, enable=False)
+cmds.optionMenuGrp(pairTieLocation, edit=True, enable=False)
+
 tieWithBow = cmds.checkBoxGrp('tieWithBow', numberOfCheckBoxes=1, label='Tie with Bow ')
 
 curtainRod = cmds.checkBoxGrp('curtainRod', numberOfCheckBoxes=1, label='Create a Curtain Rod ')
@@ -150,7 +182,7 @@ cmds.text('         ', p =rightmar)
 
 cmds.showWindow(window)
 
-def createCloth(name, isCurtainBow):
+def createCloth(name, isCurtainBow, typeOfCurtain):
     clothType = cmds.optionMenuGrp('clothType', q = True, v = True)
     isTablecloth = False
     isCurtain = False
@@ -168,14 +200,21 @@ def createCloth(name, isCurtainBow):
     useTable = cmds.checkBoxGrp('useTable', q = True, v1=True)
     useFolds = cmds.checkBoxGrp('useFolds', q = True, v1=True)
         
-    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)   
+    tieBack = cmds.checkBoxGrp('tieBack', q = True, v1=True)
     curtainRod = cmds.checkBoxGrp('curtainRod', q = True, v1=True)    
-        
+    if ('pair2' in typeOfCurtain):
+        curtainRod = False    
+    if ('top' in typeOfCurtain):
+        tieBack = False    
+        width = width * 2.25
+        length = length/6
+        curtainRod = False
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
     materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
     funMat = cmds.checkBoxGrp('funMaterial', q = True, v1=True)   
      
+    #creates cloth assets 
     if (isCurtainBow):
         isCurtain = False
         isRibbonBow = True
@@ -197,7 +236,10 @@ def createCloth(name, isCurtainBow):
     elif (isCurtain):
         div = width * 4
         cmds.polyCylinder( r=0.15, h=width + 4, sx=20, sy=1, sz=1, ax=[0, 1, 0], rcp=0, cuv=3, ch=1, n=name + 'collider')
+        
         cmds.rotate(0, 0, 90, r=True, os=True, fo=True)
+        if ('right' in typeOfCurtain):
+            cmds.rotate(180, 0, 0, r=True, os=True, fo=True)
         cmds.polySubdivideFacet(name + 'collider', duv=1, dvv=div, sbm=1, ch=1)
         cmds.select(name + 'collider')
     elif (isRibbonBow):
@@ -532,8 +574,32 @@ def createCloth(name, isCurtainBow):
         cmds.currentTime(10)
         cmds.select(name + 'collider')
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
-        cmds.currentTime(20)
-        cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
+        if ('top' in typeOfCurtain):
+            cmds.currentTime(90)
+            if 'side' in typeOfCurtain:
+                cmds.setKeyframe(name + 'collider', attribute='sy', v=0.6)
+            else:
+                cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
+        else:
+            cmds.currentTime(20)
+            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
+        '''
+        if 'left' in typeOfCurtain:
+            cmds.currentTime(120)
+            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
+            cmds.currentTime(125)
+            #-0.4
+            cmds.setAttr(name + 'collider.translateX', width/12)
+            if(cmds.getAttr(name + 'collider.tx', k=True) or cmds.getAttr(name + 'collider.tx', ch=True) ):
+                cmds.setKeyframe(name + 'collider.tx')
+        elif 'right' in typeOfCurtain:
+            cmds.currentTime(120)
+            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
+            cmds.currentTime(125)
+            cmds.setAttr(name + 'collider.translateX', -width/12)
+            if(cmds.getAttr(name + 'collider.tx', k=True) or cmds.getAttr(name + 'collider.tx', ch=True) ):
+                cmds.setKeyframe(name + 'collider.tx')
+        '''    
         vtxnums = []
         vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
         '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
@@ -545,7 +611,10 @@ def createCloth(name, isCurtainBow):
             vtxs.append(f'{name}clothmesh{vtx}')
         cmds.select(vtxs)
         cmds.select(name + 'collider', add=True)
-        mel.eval('createNConstraint pointToSurface 0;')
+        constraint1Name = mel.eval('createNConstraint pointToSurface 0;')
+        if 'center' not in typeOfCurtain:
+            cmds.setAttr(constraint1Name[0] + '.connectionUpdate', 1)
+            cmds.setAttr(name + 'nucleus1.maxCollisionIterations', 9)
         if (tieBack):
             cmds.polyTorus(r=width/2+1, sr=0.1, tw=0, sx=40, sy= 20, ax=[0, 1, 0], cuv=1, ch=1, n = name + 'torusTie')
             clothliketie = cmds.polyPipe(r=width/2+1, h=2, t=0.1, sa=20, sh=1, sc=4, ax=[0, 1, 0], cuv=1, rcp=0, ch=1, n= name + 'flatTie')
@@ -559,6 +628,10 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'flatTie.sy')
             if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'flatTie.sz')
+            if 'center' not in typeOfCurtain:
+                cmds.currentTime(85)
+                if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'flatTie.tx')
             cmds.currentTime(117)
             cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
             if(cmds.getAttr(name + 'flatTie.sx', k=True) or cmds.getAttr(name + 'flatTie.sx', cb = True)):
@@ -567,6 +640,17 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'flatTie.sy')
             if(cmds.getAttr(name + 'flatTie.sz', k=True) or cmds.getAttr(name + 'flatTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'flatTie.sz')
+            if 'left' in typeOfCurtain:
+                cmds.currentTime(125)
+                #-1.028
+                cmds.setAttr(name + 'flatTie.translateX', -width/5)
+                if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'flatTie.tx')
+            if 'right' in typeOfCurtain:
+                cmds.currentTime(125)
+                cmds.setAttr(name + 'flatTie.translateX', width/5)
+                if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'flatTie.tx')
             cmds.polySmooth(name + 'flatTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.select(name + 'torusTie')
             cmds.move(0, length/2 - length/3, 0) 
@@ -579,6 +663,10 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'torusTie.sy')
             if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'torusTie.sz')
+            if 'center' not in typeOfCurtain:
+                cmds.currentTime(85)
+                if(cmds.getAttr(name + 'torusTie.tx', k=True) or cmds.getAttr(name + 'torusTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'torusTie.tx')
             cmds.currentTime(117)
             cmds.scale(0.183684, 0.183684, 0.183684, ws=True, r=True)
             if(cmds.getAttr(name + 'torusTie.sx', k=True) or cmds.getAttr(name + 'torusTie.sx', cb = True)):
@@ -587,6 +675,16 @@ def createCloth(name, isCurtainBow):
                 cmds.setKeyframe(name + 'torusTie.sy')
             if(cmds.getAttr(name + 'torusTie.sz', k=True) or cmds.getAttr(name + 'torusTie.sz', ch=True) ):
                 cmds.setKeyframe(name + 'torusTie.sz')
+            if 'left' in typeOfCurtain:
+                cmds.currentTime(125)
+                cmds.setAttr(name + 'torusTie.translateX', -width/5)
+                if(cmds.getAttr(name + 'torusTie.tx', k=True) or cmds.getAttr(name + 'torusTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'torusTie.tx')
+            if 'right' in typeOfCurtain:
+                cmds.currentTime(125)
+                cmds.setAttr(name + 'torusTie.translateX', width/5)
+                if(cmds.getAttr(name + 'torusTie.tx', k=True) or cmds.getAttr(name + 'torusTie.tx', ch=True) ):
+                    cmds.setKeyframe(name + 'torusTie.tx')
             cmds.polySmooth(name + 'torusTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.createNode('nRigid', name=name + 'torusTienRigid')
             cmds.connectAttr(name + 'torusTie' + 'Shape.worldMesh[0]', name + 'torusTienRigid.inputMesh')
@@ -595,9 +693,19 @@ def createCloth(name, isCurtainBow):
             cmds.connectAttr(name + 'nucleus1.startFrame', name + 'torusTienRigid.startFrame')
             cmds.connectAttr('time.outTime', name + 'torusTienRigid.currentTime')
             cmds.setAttr(name + 'torusTienRigid.thickness', 0.0)
+        if ('top' in typeOfCurtain):
+             cmds.setAttr(constraint1Name[0] + '.connectionUpdate', 0)
         #curtain rod
         if(curtainRod):
-            rod = cmds.polyCube(w=width+0.4, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
+            rodWidth = width + 0.4
+            if 'single' in typeOfCurtain:
+                rodWidth = width/3 * 2 - 0.2
+            else:
+                rodWidth = width * 2.25 * 0.6
+                if 'left' in typeOfCurtain:
+                    rodWidth = width/2 * 3
+                    #* 2.25 * 0.45
+            rod = cmds.polyCube(w=rodWidth, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
             cmds.scale(1, 0.5, 0.5, r=True)
             edgenums = ['.e[18]', '.e[14]', '.e[22]', '.e[26]']
             edges = []
@@ -633,7 +741,17 @@ def createCloth(name, isCurtainBow):
             cmds.polyExtrudeFacet(name + 'rod.f[12]', constructionHistory=1, keepFacesTogether=1, pvx=-2.700000048, pvy=5.1, pvz=-0.39, divisions=1, twist=0, taper=1, off=0, thickness=0, smoothingAngle=30, ltz = 0.11)
             cmds.scale(0.6, 0.6, 0.6, cs=True, r=True) 
             cmds.polySmooth(name + 'rod', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
-
+           
+            if rodWidth < 5:
+                edgenums = ['.e[216]', '.e[219]', '.e[224]', '.e[227:228]', '.e[231]', '.e[236]', '.e[239:240]', '.e[243]', '.e[248]', '.e[251:252]', '.e[255]', '.e[260]', '.e[263]']
+                edges = []
+                for edge in edgenums:
+                    edges.append(f'{name}rod{edge}')
+                cmds.select(edges)
+                cmds.polyDelEdge(cv=True, ch=1)
+            
+            cmds.move(0, 0, -0.22, r=True, os=True, wd=True)
+          
     #hide objects in the scene/visibility
     cmds.setAttr(name + 'clothmesh.visibility', 0)
     if (isCurtain):
@@ -644,6 +762,31 @@ def createCloth(name, isCurtainBow):
         cmds.setAttr(name + 'ribbon1.visibility', 0)
         cmds.setAttr(name + 'ribbon2.visibility', 0)
         cmds.setAttr(name + 'collider.visibility', 0)
+    cmds.setAttr(name + 'nCloth1.collisionLayer', 1)
+    
+    #if panel pair curtain -> group
+    #if 'pair' in typeOfCurtain:
+    if tieBack:
+        cmds.group(name + 'collider', name + 'clothmesh', outMesh, name + 'flatTie', name + 'torusTie', n = name + 'panelcurtain')
+    else:
+        cmds.group(name + 'collider', name + 'clothmesh', outMesh, n = name + 'panelcurtain')
+    cmds.select(name + 'panelcurtain')
+    if 'pair1' in typeOfCurtain:
+        if 'left' in typeOfCurtain:
+            cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
+        else:
+            cmds.move(-width/4, 0, 0, r=True, os=True, wd=True) 
+    elif 'pair2' in typeOfCurtain:
+        if 'right' in typeOfCurtain:
+            cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
+        else:
+            cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
+    elif 'top' in typeOfCurtain:
+        cmds.move(0, 0, 1*width/11.25, r=True, os=True, wd=True) 
+        cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
+    
+    #prevent curtain cutting through other colliders    
+    cmds.setAttr(name + 'nRigid1.trappedCheck', 1)
     
     #material
     if (curtainRod):
@@ -662,7 +805,7 @@ def createCloth(name, isCurtainBow):
     if (isRibbonBow):
         cmds.select(outRibbon1, outRibbon2, bowcentercollider, bowCenterMesh, add=True)
         
-    if (isCurtain):
+    if (isCurtain and tieBack):
         cmds.select(clothliketie, add=True)
     cmds.hyperShade(assign = 'aiSurfaceShader' + name + 'SG')
     cmds.connectAttr(name + 'shader.outColor', 'aiSurfaceShader' + name +'SG.surfaceShader', f=True)
@@ -856,7 +999,48 @@ def clothmain():
     inputname = cmds.textFieldGrp(nameparam, query = True, text = True)
     name = inputname
     tieWithBow = cmds.checkBoxGrp('tieWithBow', q = True, v1=True)
+    clothType = cmds.optionMenuGrp('clothType', q = True, v = True)
+    
     if (tieWithBow):
         newname = name + 'curtainBow'
-        createCloth(newname, True)
-    createCloth(name, False)
+        createCloth(newname, True, 'n/a')
+    if (clothType == 'Curtain'):
+        curtainType = cmds.optionMenuGrp('curtainType', q = True, v = True)
+        if (curtainType == 'Single Panel'):
+            singleTieLocation = cmds.optionMenuGrp('singleTieLocation', q = True, v = True)
+            if (singleTieLocation == 'Center'):
+                createCloth(name, False, 'singlecenter')
+            elif (singleTieLocation == 'Left'):
+                createCloth(name, False, 'singleleft')
+            elif (singleTieLocation == 'Right'):
+                createCloth(name, False, 'singleright')     
+        elif (curtainType == 'Panel Pair'):
+            pairTieLocation = cmds.optionMenuGrp('pairTieLocation', q = True, v = True)
+            if (pairTieLocation == 'Center'):
+                newname = name + '1'
+                createCloth(newname, False, 'pair1center')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2center')
+            else:
+                newname = name + '1'
+                createCloth(newname, False, 'pair1left')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2right')
+        elif (curtainType == 'Complete Set'):
+            pairTieLocation = cmds.optionMenuGrp('pairTieLocation', q = True, v = True)
+            if (pairTieLocation == 'Center'):
+                newname = name + '1'
+                createCloth(newname, False, 'pair1center')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2center')
+                newname = name + 'top'
+                createCloth(newname, False, 'singletop')
+            else:
+                newname = name + '1'
+                createCloth(newname, False, 'pair1left')
+                newname = name + '2'
+                createCloth(newname, False, 'pair2right')
+                newname = name + 'top'
+                createCloth(newname, False, 'singletop_side')
+    else:
+        createCloth(name, False, 'n/a')

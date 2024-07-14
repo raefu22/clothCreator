@@ -2,6 +2,23 @@
 # Cloth Creator for Maya
 This is a Python plugin that allows the user to create cloth in Maya utilizing Maya's nCloth system. Make tablecloth, curtains, and ribbon bows. <br>
 
+## Curtains
+
+
+<details>
+
+<summary> <h3> Parameters for Curtains </h3>
+
+</summary>
+
+### Curtain Type
+Choose to create a single panel, panel pair, or a complete curtain set.
+
+### Tie back
+Able to have the curtain tied back. (Works best with width of 5 and height of 10.)
+
+</details>
+
 ## Materials
 Choose a material to make it: <br>
  - Cotton
