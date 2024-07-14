@@ -576,7 +576,10 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.setKeyframe(name + 'collider', attribute='sy', v=1)
         if ('top' in typeOfCurtain):
             cmds.currentTime(90)
-            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
+            if 'side' in typeOfCurtain:
+                cmds.setKeyframe(name + 'collider', attribute='sy', v=0.6)
+            else:
+                cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
         else:
             cmds.currentTime(20)
             cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
@@ -697,11 +700,11 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             rodWidth = width + 0.4
             if 'single' in typeOfCurtain:
                 rodWidth = width/3 * 2 - 0.2
-            elif 'pair' in typeOfCurtain:
+            else:
+                rodWidth = width * 2.25 * 0.6
                 if 'left' in typeOfCurtain:
                     rodWidth = width/2 * 3
-                else:
-                    rodWith = width * 2
+                    #* 2.25 * 0.45
             rod = cmds.polyCube(w=rodWidth, h=1, d=1, sx=3, sy=1, sz=1, ax=[0, 1, 0], cuv=4, ch=1, n= name + 'rod')
             cmds.scale(1, 0.5, 0.5, r=True)
             edgenums = ['.e[18]', '.e[14]', '.e[22]', '.e[26]']
@@ -746,6 +749,8 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                     edges.append(f'{name}rod{edge}')
                 cmds.select(edges)
                 cmds.polyDelEdge(cv=True, ch=1)
+            
+            cmds.move(0, 0, -0.22, r=True, os=True, wd=True)
           
     #hide objects in the scene/visibility
     cmds.setAttr(name + 'clothmesh.visibility', 0)
@@ -777,7 +782,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         else:
             cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
     elif 'top' in typeOfCurtain:
-        cmds.move(0, 0, 1, r=True, os=True, wd=True) 
+        cmds.move(0, 0, 1*width/11.25, r=True, os=True, wd=True) 
         cmds.move(0, length*3 - (length*0.5), 0, r=True, os=True, wd=True) 
     
     #prevent curtain cutting through other colliders    
@@ -1036,6 +1041,6 @@ def clothmain():
                 newname = name + '2'
                 createCloth(newname, False, 'pair2right')
                 newname = name + 'top'
-                createCloth(newname, False, 'singletop')
+                createCloth(newname, False, 'singletop_side')
     else:
         createCloth(name, False, 'n/a')
