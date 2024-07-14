@@ -343,6 +343,25 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.move(0, 0, 0, r=True)
             cmds.select(name + 'ribbon2')
             cmds.move(0, 0.03, 0, r=True)
+            cmds.select(name + 'theCurtainBow')
+            if ('single' in typeOfCurtain and 'left' in typeOfCurtain):
+                cmds.move(-width/5, 0, 0, r=True, os=True, wd=True)
+            elif ('single' in typeOfCurtain and 'right' in typeOfCurtain):
+                cmds.move(width/5, 0, 0, r=True, os=True, wd=True)    
+            elif 'pair1' in typeOfCurtain:
+                if 'left' in typeOfCurtain:
+                    cmds.move(-width/5, 0, 0, r=True, os=True, wd=True)
+                    cmds.move(-width/3 + 0.2, 0, 0, r=True, os=True, wd=True) 
+                else:
+                    cmds.move(-width/4, 0, 0, r=True, os=True, wd=True) 
+            elif 'pair2' in typeOfCurtain:
+                if 'right' in typeOfCurtain:
+                    cmds.move(width/5, 0, 0, r=True, os=True, wd=True)
+                    cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
+                else:
+                    cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
+
+
       
     else:
         if (useFolds == True):
@@ -1001,28 +1020,48 @@ def clothmain():
     name = inputname
     tieWithBow = cmds.checkBoxGrp('tieWithBow', q = True, v1=True)
     clothType = cmds.optionMenuGrp('clothType', q = True, v = True)
-    
+    '''
     if (tieWithBow):
         newname = name + 'curtainBow'
         createCloth(newname, True, 'n/a')
+    '''
     if (clothType == 'Curtain'):
         curtainType = cmds.optionMenuGrp('curtainType', q = True, v = True)
         if (curtainType == 'Single Panel'):
             singleTieLocation = cmds.optionMenuGrp('singleTieLocation', q = True, v = True)
             if (singleTieLocation == 'Center'):
+                if (tieWithBow):
+                    newname = name + 'curtainBow'
+                    createCloth(newname, True, 'singlecenter')
                 createCloth(name, False, 'singlecenter')
             elif (singleTieLocation == 'Left'):
+                if (tieWithBow):
+                    newname = name + 'curtainBow'
+                    createCloth(newname, True, 'singleleft')
                 createCloth(name, False, 'singleleft')
             elif (singleTieLocation == 'Right'):
+                if (tieWithBow):
+                    newname = name + 'curtainBow'
+                    createCloth(newname, True, 'singleright')
                 createCloth(name, False, 'singleright')     
         elif (curtainType == 'Panel Pair'):
             pairTieLocation = cmds.optionMenuGrp('pairTieLocation', q = True, v = True)
             if (pairTieLocation == 'Center'):
+                if (tieWithBow):
+                    newname = name + 'curtainBow1'
+                    createCloth(newname, True, 'pair1center')
+                    newname = name + 'curtainBow2'
+                    createCloth(newname, True, 'pair2center')
                 newname = name + '1'
                 createCloth(newname, False, 'pair1center')
                 newname = name + '2'
                 createCloth(newname, False, 'pair2center')
             else:
+                if (tieWithBow):
+                    newname = name + 'curtainBow1'
+                    createCloth(newname, True, 'pair1left')
+                    newname = name + 'curtainBow2'
+                    createCloth(newname, True, 'pair2right')
                 newname = name + '1'
                 createCloth(newname, False, 'pair1left')
                 newname = name + '2'
@@ -1030,6 +1069,11 @@ def clothmain():
         elif (curtainType == 'Complete Set'):
             pairTieLocation = cmds.optionMenuGrp('pairTieLocation', q = True, v = True)
             if (pairTieLocation == 'Center'):
+                if (tieWithBow):
+                    newname = name + 'curtainBow1'
+                    createCloth(newname, True, 'pair1center')
+                    newname = name + 'curtainBow2'
+                    createCloth(newname, True, 'pair2center')
                 newname = name + '1'
                 createCloth(newname, False, 'pair1center')
                 newname = name + '2'
@@ -1037,6 +1081,11 @@ def clothmain():
                 newname = name + 'top'
                 createCloth(newname, False, 'singletop')
             else:
+                if (tieWithBow):
+                    newname = name + 'curtainBow1'
+                    createCloth(newname, True, 'pair1left')
+                    newname = name + 'curtainBow2'
+                    createCloth(newname, True, 'pair2right')
                 newname = name + '1'
                 createCloth(newname, False, 'pair1left')
                 newname = name + '2'
