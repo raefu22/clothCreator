@@ -360,14 +360,10 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                     cmds.move(width/3 - 0.2, 0, 0, r=True, os=True, wd=True)
                 else:
                     cmds.move(width/4, 0, 0, r=True, os=True, wd=True) 
-
-
-      
     else:
         if (useFolds == True):
             curveObj = cmds.ls(selection = True)
             mergeList = []
-            print('in folds if')
             for curveNum in range(len(curveObj)):
                 curveName = curveObj[curveNum]
                 cmds.select(curveName)
@@ -435,6 +431,10 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         clothSubdivide = 4
     clothmesh = cmds.polySmooth(name + 'clothmesh', dv = clothSubdivide, mth=0, sl = 2)
     
+    #uvs
+    cmds.u3dUnfold(name + 'clothmesh', ite=1, p=0, bi=1, tf=1, ms=1024, rs=0)
+    cmds.u3dLayout(name + 'clothmesh', res=256, scl=1, box=[0, 1, 0, 1])
+
     #convert to nCloth
     cmds.createNode('nRigid', name=name + 'nRigid1')
     
@@ -601,24 +601,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                 cmds.setKeyframe(name + 'collider', attribute='sy', v=0.45)
         else:
             cmds.currentTime(20)
-            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)
-        '''
-        if 'left' in typeOfCurtain:
-            cmds.currentTime(120)
-            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
-            cmds.currentTime(125)
-            #-0.4
-            cmds.setAttr(name + 'collider.translateX', width/12)
-            if(cmds.getAttr(name + 'collider.tx', k=True) or cmds.getAttr(name + 'collider.tx', ch=True) ):
-                cmds.setKeyframe(name + 'collider.tx')
-        elif 'right' in typeOfCurtain:
-            cmds.currentTime(120)
-            cmds.setKeyframe(name + 'collider', attribute='tx', v=0)
-            cmds.currentTime(125)
-            cmds.setAttr(name + 'collider.translateX', -width/12)
-            if(cmds.getAttr(name + 'collider.tx', k=True) or cmds.getAttr(name + 'collider.tx', ch=True) ):
-                cmds.setKeyframe(name + 'collider.tx')
-        '''    
+            cmds.setKeyframe(name + 'collider', attribute='sy', v=0.4)    
         vtxnums = []
         vtxnums = ['.vtx[0]', '.vtx[11]', '.vtx[22]', '.vtx[33]', '.vtx[44]', '.vtx[55]', '.vtx[66]', '.vtx[77]', '.vtx[88]', '.vtx[99]', '.vtx[110]', '.vtx[122]',
         '.vtx[143]', '.vtx[164]', '.vtx[185]', '.vtx[206]', '.vtx[227]', '.vtx[248]', '.vtx[269]', '.vtx[290]', '.vtx[311]', '.vtx[443:444]', '.vtx[485:486]', 
@@ -670,6 +653,17 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
                 cmds.setAttr(name + 'flatTie.translateX', width/5)
                 if(cmds.getAttr(name + 'flatTie.tx', k=True) or cmds.getAttr(name + 'flatTie.tx', ch=True) ):
                     cmds.setKeyframe(name + 'flatTie.tx')
+            #uvs
+            edgenums = []
+            edgenums = ['.e[203]', '.e[223]', '.e[243]', '.e[263]', '.e[283]', '.e[303]', '.e[323]', '.e[343]', '.e[363]', '.e[383]']
+            edges = []
+            for edge in edgenums:
+                edges.append(f'{name}flatTie{edge}')
+            cmds.polyMapCut(edges, ch=1)
+            
+            cmds.u3dUnfold(name + 'flatTie', ite=1, p=0, bi=1, tf=1, ms=1024, rs=0)
+            mel.eval('texOrientShells;')
+            cmds.u3dLayout(name + 'flatTie', res=256, scl=1, box=[0, 1, 0, 1])
             cmds.polySmooth(name + 'flatTie', mth=0, sdt=2, ovb=1, ofb=3, ofc=0, ost=0, ocr=0, dv=1, bnr=1, c=1, kb=1, ksb=1, khe=0, kt=1, kmb=1, suv=1, peh=0, sl=1, dpe=1, ps=0.1, ro=1, ch=1)
             cmds.select(name + 'torusTie')
             cmds.move(0, length/2 - length/3, 0) 
@@ -1020,11 +1014,6 @@ def clothmain():
     name = inputname
     tieWithBow = cmds.checkBoxGrp('tieWithBow', q = True, v1=True)
     clothType = cmds.optionMenuGrp('clothType', q = True, v = True)
-    '''
-    if (tieWithBow):
-        newname = name + 'curtainBow'
-        createCloth(newname, True, 'n/a')
-    '''
     if (clothType == 'Curtain'):
         curtainType = cmds.optionMenuGrp('curtainType', q = True, v = True)
         if (curtainType == 'Single Panel'):
