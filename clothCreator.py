@@ -52,12 +52,12 @@ def hideTieOp(*args):
 def showColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True)
     cmds.colorSliderGrp(pickColor, edit=True, enable=True)
-    cmds.radioButtonGrp(materialType, edit=True, enable=True)
+    cmds.optionMenuGrp(materialType, edit=True, enable=True)
    
 def hideColorOp(*args):
     showCheckbox = cmds.checkBoxGrp(applyMaterial, q = True, vis = False, v1 = False)
     cmds.colorSliderGrp(pickColor, edit=True, enable=False)
-    cmds.radioButtonGrp(materialType, edit=True, enable=False)
+    cmds.optionMenuGrp(materialType, edit=True, enable=False)
     
 def showRibbonOp(*args):
     cmds.floatSliderGrp(clothwidth, edit=True, enable=False)
@@ -72,6 +72,12 @@ def showRegularOp(*args):
 
 def hideRegularOp(*args):
     cmds.checkBoxGrp(useFolds, edit=True, enable=False)
+    
+def showSeed(*args):
+    cmds.floatSliderGrp(seed, edit=True, enable=True)
+    
+def hideSeed(*args):
+    cmds.floatSliderGrp(seed, edit=True, enable=False)
     
 def curtainTypeChange(item, *args):
     tieCurr = cmds.checkBoxGrp('tieBack', q = True, v1 = True)
@@ -102,6 +108,12 @@ def typeChange(item, *args):
         hideCurtainOp()
         hideRibbonOp()
         showRegularOp()
+        
+def materialTypeChange(item, *args):
+    if (item =='Plaid'):
+        showSeed()
+    else:
+        hideSeed()
 
 window = cmds.window(title='Cloth Creator', menuBar = True, width=250)
 container = cmds.columnLayout()
@@ -163,13 +175,21 @@ cmds.separator(height = 10)
 
 applyMaterial = cmds.checkBoxGrp("applyMaterial", numberOfCheckBoxes=1, label='Apply Material ', v1=False, onc = showColorOp, ofc = hideColorOp)
 cmds.separator(height = 5)
-materialType = cmds.radioButtonGrp('materialType', label='Material Type ', labelArray4=['Cotton', 'Velvet', 'Satin', 'Plaid'], numberOfRadioButtons=4)
+materialType = cmds.optionMenuGrp('materialType', label='Material Type ', cc = materialTypeChange)
+cmds.menuItem(label = 'Cotton')
+cmds.menuItem(label = 'Velvet')
+cmds.menuItem(label = 'Satin')
+cmds.menuItem(label = 'Plaid')
+cmds.optionMenuGrp('materialType', edit=True, enable=False)
+#materialType = cmds.radioButtonGrp('materialType', label='Material Type ', labelArray4=['Cotton', 'Velvet', 'Satin', 'Plaid'], numberOfRadioButtons=4)
 #add a fun/odd/fantastical materials section and have 'Iridescent'
 funMat = cmds.checkBoxGrp('funMaterial', numberOfCheckBoxes=1, label='Fun material? ')
 cmds.separator(height = 5)
 pickColor = cmds.colorSliderGrp('colorpicked', label= 'Color', rgb=(0.272, 0.240, 0.237))
 cmds.colorSliderGrp(pickColor, edit=True, enable=False)
-cmds.radioButtonGrp(materialType, edit=True, enable=False)
+seed = cmds.floatSliderGrp('seed', label='Seed For Other Color ', field = True, min = 0, max = 40, v = 3)
+cmds.floatSliderGrp('seed', edit=True, enable=False)
+#cmds.radioButtonGrp(materialType, edit=True, enable=False)
 cmds.separator(height = 10)
 
 submitrow = cmds.rowLayout(numberOfColumns=2, p=maincol)
@@ -210,9 +230,11 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         length = length/6
         curtainRod = False
     applyMaterial = cmds.checkBoxGrp('applyMaterial', q = True, v1=True)
-    materialType = cmds.radioButtonGrp('materialType', q = True, sl = True)
+    materialType = cmds.optionMenuGrp('materialType', q = True, v = True)
+    #= cmds.radioButtonGrp('materialType', q = True, sl = True)
     maincolor = cmds.colorSliderGrp('colorpicked', q = True, rgbValue = True)
     funMat = cmds.checkBoxGrp('funMaterial', q = True, v1=True)   
+    seed =  cmds.floatSliderGrp('seed', q = True, v = True)
      
     #creates cloth assets 
     if (isCurtainBow):
@@ -423,7 +445,6 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
         cmds.move(clothLocation[0], clothLocation[1], clothLocation[2], r=True)
     
     #add subdivisions to cloth mesh
-    
     clothSubdivide = 2
     if (width > 7 or length >  7):
         clothSubdivide = 3
@@ -488,7 +509,6 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
     #t-shirt is 0.6 || 1st pass was 0.8, 0.05
     cmds.setAttr(name + 'nCloth1.pointMass', 1.38)
     cmds.setAttr(name + 'nCloth1.lift', 0.27)
-    
     
     #t-shirt is 0.1 
     cmds.setAttr(name + 'nCloth1.tangentialDrag', 0.04)
@@ -836,8 +856,8 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.setAttr(name + 'shader.baseColor', 0.51, 0.51, 0.51, type='double3')
             cmds.setAttr(name + 'shader.metalness', 0.5)
             cmds.setAttr(name + 'shader.thinFilmThickness', 419.580)
-            materialType = 1
-        if (materialType == 1):
+            materialType = 'Cotton'
+        if (materialType == 'Cotton'):
             cmds.shadingNode('cloth', asTexture=True, n=name + 'clothTex1')
             cmds.shadingNode('place2dTexture', asUtility = True, n=name + 'place2dTexture1') 
             cmds.connectAttr(name + 'place2dTexture1.outUV', name + 'clothTex1.uv')
@@ -864,13 +884,13 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.setAttr(name + 'shader.specular', 0)
             cmds.setAttr(name + 'shader.sheen', 1)
             cmds.setAttr(name + 'shader.sheenRoughness', 0.35)
-        elif (materialType == 2):    
+        elif (materialType == 'Velvet'):    
             cmds.setAttr(name + 'shader.specular', 0)
             cmds.setAttr(name + 'shader.baseColor', maincolor[0], maincolor[1], maincolor[2], type='double3')
             cmds.setAttr(name + 'shader.sheen', 1)
             cmds.setAttr(name + 'shader.sheenColor', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
             cmds.setAttr(name + 'shader.sheenRoughness', 0.2)
-        elif (materialType == 3):    
+        elif (materialType == 'Satin'):    
             cmds.setAttr(name + 'shader.specular', 0)
             cmds.shadingNode('aiFacingRatio', asUtility = True, n=name + 'aiFacingRatio1')
             cmds.shadingNode('remapValue', asUtility = True, n=name + 'remapValue1')
@@ -901,7 +921,7 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             cmds.setAttr(name + 'aiLayerRgba1.enable2', 1)
             cmds.setAttr(name + 'aiLayerRgba1.input2', lighterColor[0], lighterColor[1], lighterColor[2], type='double3')
             cmds.setAttr(name + 'aiLayerRgba1.alphaOperation1', 2)
-        elif(materialType == 4):
+        elif(materialType == 'Plaid'):
             cmds.rename(name + 'shader', name + 'horizontalStripes')
             shader = cmds.shadingNode('aiMixShader', asShader = True, n=name + 'aiMixShader1') 
             shader = cmds.shadingNode('aiMixShader', asShader = True, n=name + 'aiMixShader2')
@@ -922,7 +942,11 @@ def createCloth(name, isCurtainBow, typeOfCurtain):
             print(hue)
             value = 1
             #complcolor = colorsys.hsv_to_rgb(hue, hsv[1], value)
-            complcolor = (maincolor[0], random.uniform(0, 0.5939), random.uniform(0, 0.7131))
+            random.seed(seed)
+            rand1 = random.uniform(0, 0.5939)
+            random.seed(seed)
+            rand2 = random.uniform(0, 0.7131)
+            complcolor = (maincolor[0], rand1, rand2)
             cmds.setAttr(name + 'rampHorizontal.colorEntryList[1].color', complcolor[0], complcolor[1], complcolor[2], type='double3')
             #vertical stripes
             cmds.shadingNode('aiStandardSurface', asShader = True, n=name + 'verticalStripes') 
